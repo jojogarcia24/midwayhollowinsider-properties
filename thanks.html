@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Tour Confirmed — Midway Hollow Insider</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#0a0a0a; --paper:#fff; --cream:#f7f5f1; --line:#e5e5e5; --muted:#666; }
+    * { box-sizing:border-box; }
+    body { margin:0; font-family:'Inter',sans-serif; font-weight:300; color:var(--ink); background:var(--paper); line-height:1.6; -webkit-font-smoothing:antialiased; overflow-x:hidden; }
+    h1,h2,h3 { font-family:'Playfair Display',Georgia,serif; font-weight:600; margin:0; letter-spacing:-0.01em; }
+    a { color:inherit; text-decoration:none; }
+    img { max-width:100%; display:block; }
+
+    .nav { position:sticky; top:0; z-index:100; background:rgba(255,255,255,0.97); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+    .nav-inner { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 2rem; max-width:1400px; margin:0 auto; }
+    .logo { font-family:'Playfair Display',serif; font-weight:700; font-size:1.1rem; letter-spacing:0.08em; }
+    .logo span { font-style:italic; font-weight:400; }
+
+    .wrap { max-width:1040px; margin:0 auto; padding:4rem 2rem 5rem; }
+    .hero { text-align:center; margin-bottom:3rem; }
+    .eyebrow { font-size:0.72rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem; }
+    .hero h1 { font-size:clamp(2.5rem,5vw,4rem); margin-bottom:1rem; }
+    .hero p { color:var(--muted); font-size:1.1rem; max-width:520px; margin:0 auto; }
+
+    .card { background:var(--cream); border:1px solid var(--line); padding:2.5rem; margin-bottom:2rem; }
+    .card h2 { font-size:1.75rem; margin-bottom:1.5rem; padding-bottom:1rem; border-bottom:1px solid var(--line); }
+
+    .summary-grid { display:grid; grid-template-columns:auto 1fr; gap:2rem; align-items:flex-start; }
+    @media (max-width:640px) { .summary-grid { grid-template-columns:1fr; } }
+
+    .summary-photo { width:240px; aspect-ratio:4/3; object-fit:cover; background:#ddd; }
+    .summary-main .addr { font-family:'Playfair Display',serif; font-size:1.5rem; font-weight:600; margin-bottom:0.25rem; }
+    .summary-main .city { color:var(--muted); margin-bottom:1rem; }
+
+    .stat-row { display:grid; grid-template-columns:repeat(auto-fit,minmax(110px,1fr)); gap:1.25rem; border-top:1px solid var(--line); padding-top:1rem; margin-top:1rem; }
+    .stat-row .stat .label { font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0.25rem; }
+    .stat-row .stat .val { font-family:'Playfair Display',serif; font-size:1.15rem; font-weight:600; }
+
+    .tour-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1.25rem; }
+    .tour-grid .item { padding:1.25rem; background:var(--paper); border:1px solid var(--line); }
+    .tour-grid .item .label { font-size:0.7rem; letter-spacing:0.18em; text-transform:uppercase; color:var(--muted); margin-bottom:0.35rem; }
+    .tour-grid .item .val { font-family:'Playfair Display',serif; font-size:1.3rem; font-weight:600; }
+
+    .next-steps { list-style:none; padding:0; margin:0; }
+    .next-steps li { padding:1rem 0; border-top:1px solid var(--line); display:flex; gap:1rem; align-items:flex-start; }
+    .next-steps li:first-child { border-top:none; padding-top:0; }
+    .next-steps .num { font-family:'Playfair Display',serif; font-size:1.25rem; font-weight:600; min-width:2rem; color:var(--muted); font-style:italic; }
+
+    .back-home { margin-top:3rem; text-align:center; }
+    .back-home a { display:inline-block; background:var(--ink); color:var(--paper); padding:1rem 2rem; font-size:0.8rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:500; border:1px solid var(--ink); transition:all 0.2s; }
+    .back-home a:hover { background:var(--paper); color:var(--ink); }
+
+    #confetti-canvas { position:fixed; inset:0; pointer-events:none; z-index:9999; }
+
+    .footer { background:var(--cream); border-top:1px solid var(--line); padding:2rem; text-align:center; font-size:0.75rem; color:var(--muted); letter-spacing:0.05em; }
+  </style>
+</head>
+<body>
+
+  <canvas id="confetti-canvas"></canvas>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">MIDWAY HOLLOW <span>INSIDER</span></a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="hero">
+      <div class="eyebrow">Tour Requested</div>
+      <h1>You're all set.</h1>
+      <p>A local agent will reach out shortly to confirm your tour time and answer any questions.</p>
+    </div>
+
+    <div class="card">
+      <h2>Property</h2>
+      <div class="summary-grid">
+        <img id="photo" class="summary-photo" alt="Listing">
+        <div class="summary-main">
+          <div class="addr" id="addr">—</div>
+          <div class="city" id="cityLine">—</div>
+          <div class="stat-row">
+            <div class="stat"><div class="label">Price</div><div class="val" id="price">$—</div></div>
+            <div class="stat"><div class="label">Bed</div><div class="val" id="beds">—</div></div>
+            <div class="stat"><div class="label">Bath</div><div class="val" id="baths">—</div></div>
+            <div class="stat"><div class="label">Sq.Ft.</div><div class="val" id="sqft">—</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Tour Details</h2>
+      <div class="tour-grid">
+        <div class="item"><div class="label">Date</div><div class="val" id="tDate">—</div></div>
+        <div class="item"><div class="label">Time</div><div class="val" id="tTime">—</div></div>
+        <div class="item"><div class="label">Type</div><div class="val" id="tType">—</div></div>
+        <div class="item"><div class="label">Status</div><div class="val" id="mlsStatus">Active</div></div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>What Happens Next</h2>
+      <ol class="next-steps">
+        <li>
+          <div class="num">01</div>
+          <div><strong>Confirmation call.</strong> An Elite Living Realty agent reaches out shortly to confirm your tour time.</div>
+        </li>
+        <li>
+          <div class="num">02</div>
+          <div><strong>Meet at the home.</strong> Your agent will meet you there, walk you through the property, and answer every question.</div>
+        </li>
+        <li>
+          <div class="num">03</div>
+          <div><strong>No pressure.</strong> Love it? We'll help you structure an offer. Not quite right? We'll keep looking together.</div>
+        </li>
+      </ol>
+    </div>
+
+    <div class="back-home">
+      <a href="/">Back to Midway Hollow Insider</a>
+    </div>
+  </div>
+
+  <footer class="footer">
+    © 2026 Midway Hollow Insider · Elite Living Realty, LLC · TREC License #9010184
+  </footer>
+
+  <script>
+    // Confetti — tasteful B&W palette
+    (function() {
+      const canvas = document.getElementById('confetti-canvas');
+      const ctx = canvas.getContext('2d');
+      const DPR = Math.max(1, window.devicePixelRatio || 1);
+      function resize() {
+        canvas.width = Math.floor(innerWidth * DPR);
+        canvas.height = Math.floor(innerHeight * DPR);
+        canvas.style.width = innerWidth + 'px';
+        canvas.style.height = innerHeight + 'px';
+      }
+      resize(); addEventListener('resize', resize);
+
+      const COLORS = ['#0a0a0a', '#333', '#666', '#999', '#ccc'];
+      const pieces = [];
+      const PI2 = Math.PI * 2;
+
+      function spawnRain(count) {
+        for (let i = 0; i < count; i++) {
+          pieces.push({
+            x: Math.random() * canvas.width,
+            y: -20 * DPR * Math.random(),
+            vx: (Math.random() - 0.5) * 1.2 * DPR,
+            vy: (2 + Math.random() * 2) * DPR,
+            w: 4 + Math.random() * 5,
+            h: 7 + Math.random() * 7,
+            rot: Math.random() * PI2,
+            vr: (Math.random() - 0.5) * 0.2,
+            color: COLORS[Math.floor(Math.random() * COLORS.length)],
+            flip: Math.random() * PI2
+          });
+        }
+      }
+
+      let rainMs = 1500;
+      const rainTimer = setInterval(() => { spawnRain(20); if ((rainMs -= 250) <= 0) clearInterval(rainTimer); }, 250);
+
+      const GRAV = 0.15 * DPR, AIR = 0.0025 * DPR;
+      function step() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        for (let i = pieces.length - 1; i >= 0; i--) {
+          const p = pieces[i];
+          p.vx *= (1 - AIR);
+          p.vy = Math.min(p.vy + GRAV, 12 * DPR);
+          p.x += p.vx; p.y += p.vy;
+          p.rot += p.vr; p.flip += 0.1;
+          ctx.save();
+          ctx.translate(p.x, p.y);
+          ctx.rotate(p.rot);
+          const sy = Math.sin(p.flip);
+          const scaleY = sy >= 0 ? Math.max(0.35, sy) : Math.min(-0.35, sy);
+          ctx.scale(1, scaleY);
+          ctx.fillStyle = p.color;
+          ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h);
+          ctx.restore();
+          if (p.y - p.h > canvas.height) pieces.splice(i, 1);
+        }
+        if (pieces.length > 0) requestAnimationFrame(step);
+      }
+      step();
+    })();
+
+    // Hydrate recap
+    (function() {
+      const money = v => (v == null || v === '' || isNaN(+String(v).replace(/[^0-9.]/g, ''))) ? '$—' :
+        new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(+String(v).replace(/[^0-9.]/g, ''));
+      const $ = id => document.getElementById(id);
+      const setText = (id, v) => { const el = $(id); if (el) el.textContent = (v != null && v !== '') ? v : '—'; };
+      const setSrc = (id, v) => { const el = $(id); if (el && v) el.src = v; };
+
+      const qp = new URLSearchParams(location.search);
+      const ref = qp.get('ref') || sessionStorage.getItem('elr-tour-ref') || sessionStorage.getItem('elr-listing-ref');
+
+      let ctx = {};
+      if (ref) { try { const s = localStorage.getItem(ref); if (s) ctx = JSON.parse(s); } catch {} }
+      qp.forEach((v, k) => ctx[k] = v);
+
+      // Pull tour submission
+      let sub = {};
+      try { sub = JSON.parse(sessionStorage.getItem('elr-tour-submission') || '{}'); } catch {}
+      // Merge listing data from within submission if present
+      if (sub.listing) ctx = { ...ctx, ...sub.listing };
+      const merged = { ...ctx, ...sub };
+
+      const get = k => merged[k] || merged[k.toLowerCase()];
+
+      // Listing
+      setText('addr', get('UnparsedAddress') || get('address'));
+      const city = get('City'); const state = get('StateOrProvince');
+      setText('cityLine', [city, state].filter(Boolean).join(', '));
+      setText('price', money(get('ListPrice') || get('price')));
+      setText('beds', get('BedroomsTotal') || get('beds'));
+      setText('baths', get('BathroomsTotalInteger') || get('baths'));
+      const sqft = get('LivingArea') || get('sqft');
+      setText('sqft', sqft ? Number(sqft).toLocaleString() : null);
+      setText('mlsStatus', get('MlsStatus') || get('status') || 'Active');
+      setSrc('photo', get('PhotoUrl') || get('photo'));
+
+      // Tour
+      setText('tDate', sub.tourDate);
+      setText('tTime', sub.tourTime);
+      setText('tType', sub.tourType);
+    })();
+  </script>
+</body>
+</html>

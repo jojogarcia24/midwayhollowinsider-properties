@@ -1,0 +1,252 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Schedule a Tour — Midway Hollow Insider</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --ink:#0a0a0a; --paper:#fff; --cream:#f7f5f1; --line:#e5e5e5; --muted:#666; }
+    * { box-sizing: border-box; }
+    body { margin:0; font-family:'Inter',sans-serif; font-weight:300; color:var(--ink); background:var(--paper); line-height:1.6; -webkit-font-smoothing:antialiased; }
+    h1,h2,h3 { font-family:'Playfair Display',Georgia,serif; font-weight:600; margin:0; letter-spacing:-0.01em; }
+    a { color:inherit; text-decoration:none; }
+    img { max-width:100%; display:block; }
+
+    .nav { position:sticky; top:0; z-index:100; background:rgba(255,255,255,0.97); backdrop-filter:blur(8px); border-bottom:1px solid var(--line); }
+    .nav-inner { display:flex; align-items:center; justify-content:space-between; padding:1.25rem 2rem; max-width:1400px; margin:0 auto; }
+    .logo { font-family:'Playfair Display',serif; font-weight:700; font-size:1.1rem; letter-spacing:0.08em; }
+    .logo span { font-style:italic; font-weight:400; }
+
+    .wrap { max-width:1080px; margin:0 auto; padding:3rem 2rem 5rem; }
+    .eyebrow { font-size:0.72rem; letter-spacing:0.25em; text-transform:uppercase; color:var(--muted); margin-bottom:0.75rem; }
+    .page-title h1 { font-size:clamp(2.25rem,4.5vw,3.5rem); margin-bottom:0.5rem; }
+    .page-title p { color:var(--muted); font-size:1.05rem; margin:0 0 3rem; }
+
+    .grid { display:grid; grid-template-columns:1.4fr 1fr; gap:3rem; align-items:flex-start; }
+    @media (max-width:900px) { .grid { grid-template-columns:1fr; } }
+
+    .form-section { margin-bottom:2.5rem; padding-bottom:2.5rem; border-bottom:1px solid var(--line); }
+    .form-section:last-of-type { border-bottom:none; }
+    .form-section h3 { font-size:1.5rem; margin-bottom:0.35rem; }
+    .form-section .hint { color:var(--muted); font-size:0.9rem; margin-bottom:1.5rem; }
+
+    .field { margin-bottom:1.25rem; }
+    .field label { display:block; font-size:0.72rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:500; margin-bottom:0.5rem; color:var(--muted); }
+    .field input, .field select, .field textarea {
+      width:100%; padding:0.95rem 1rem; font-family:inherit; font-size:1rem; font-weight:300;
+      border:1px solid var(--line); background:var(--paper); color:var(--ink); transition:border-color 0.2s;
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { outline:none; border-color:var(--ink); }
+    .field select {
+      appearance:none;
+      background-image:url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23000' fill='none'/%3E%3C/svg%3E");
+      background-repeat:no-repeat; background-position:right 1rem center;
+    }
+    .field-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
+    @media (max-width:600px) { .field-row { grid-template-columns:1fr; } }
+
+    .tour-type {
+      display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem;
+    }
+    .tour-type label {
+      display:block; text-align:center; padding:1rem 0.75rem; border:1px solid var(--line);
+      cursor:pointer; font-size:0.78rem; letter-spacing:0.15em; text-transform:uppercase;
+      transition:all 0.2s;
+    }
+    .tour-type input[type=radio] { display:none; }
+    .tour-type input[type=radio]:checked + label { background:var(--ink); color:var(--paper); border-color:var(--ink); }
+
+    .btn-primary { display:inline-block; width:100%; background:var(--ink); color:var(--paper); padding:1.15rem 2rem; font-size:0.85rem; letter-spacing:0.2em; text-transform:uppercase; font-weight:500; border:1px solid var(--ink); cursor:pointer; text-align:center; transition:all 0.2s; }
+    .btn-primary:hover { background:var(--paper); color:var(--ink); }
+
+    .side-card { position:sticky; top:100px; background:var(--cream); padding:1.75rem; border:1px solid var(--line); }
+    .side-card .thumb { width:100%; aspect-ratio:4/3; object-fit:cover; margin-bottom:1.25rem; background:#ddd; }
+    .side-card .price { font-family:'Playfair Display',serif; font-size:1.75rem; font-weight:600; margin-bottom:0.25rem; }
+    .side-card .addr { font-size:0.95rem; margin-bottom:0.25rem; }
+    .side-card .meta { font-size:0.75rem; letter-spacing:0.1em; text-transform:uppercase; color:var(--muted); margin-bottom:1rem; }
+    .side-card .pill { display:inline-block; background:var(--ink); color:var(--paper); padding:0.3rem 0.7rem; font-size:0.65rem; letter-spacing:0.2em; text-transform:uppercase; }
+
+    .footer { background:var(--cream); border-top:1px solid var(--line); padding:2rem; text-align:center; font-size:0.75rem; color:var(--muted); letter-spacing:0.05em; }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">MIDWAY HOLLOW <span>INSIDER</span></a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="eyebrow">Schedule a Tour</div>
+    <div class="page-title">
+      <h1>See the home in person.</h1>
+      <p>Pick a time that works. A local agent will confirm and meet you there.</p>
+    </div>
+
+    <div class="grid">
+      <form id="tour-form" action="/thanks.html" method="GET">
+
+        <div class="form-section">
+          <h3>Tour Type</h3>
+          <p class="hint">Choose how you'd like to see the property.</p>
+          <div class="tour-type">
+            <div>
+              <input type="radio" id="tt1" name="tourType" value="In Person" checked />
+              <label for="tt1">In Person</label>
+            </div>
+            <div>
+              <input type="radio" id="tt2" name="tourType" value="Video Tour" />
+              <label for="tt2">Video Tour</label>
+            </div>
+            <div>
+              <input type="radio" id="tt3" name="tourType" value="Self-Guided" />
+              <label for="tt3">Self-Guided</label>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Date &amp; Time</h3>
+          <p class="hint">We'll confirm availability within a few hours.</p>
+          <div class="field-row">
+            <div class="field">
+              <label for="tourDate">Preferred Date</label>
+              <input id="tourDate" name="tourDate" type="date" required />
+            </div>
+            <div class="field">
+              <label for="tourTime">Preferred Time</label>
+              <select id="tourTime" name="tourTime" required>
+                <option value="">Select a time</option>
+                <option>9:00 AM</option><option>10:00 AM</option><option>11:00 AM</option>
+                <option>12:00 PM</option><option>1:00 PM</option><option>2:00 PM</option>
+                <option>3:00 PM</option><option>4:00 PM</option><option>5:00 PM</option>
+                <option>6:00 PM</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3>Your Information</h3>
+
+          <div class="field-row">
+            <div class="field">
+              <label for="firstName">First Name</label>
+              <input id="firstName" name="firstName" type="text" required />
+            </div>
+            <div class="field">
+              <label for="lastName">Last Name</label>
+              <input id="lastName" name="lastName" type="text" required />
+            </div>
+          </div>
+
+          <div class="field">
+            <label for="email">Email</label>
+            <input id="email" name="email" type="email" required />
+          </div>
+
+          <div class="field">
+            <label for="phone">Phone</label>
+            <input id="phone" name="phone" type="tel" required />
+          </div>
+
+          <div class="field">
+            <label for="workingWithAgent">Are you working with an agent?</label>
+            <select id="workingWithAgent" name="workingWithAgent">
+              <option value="">Select</option>
+              <option>No</option>
+              <option>Yes</option>
+            </select>
+          </div>
+
+          <div class="field">
+            <label for="notes">Notes (optional)</label>
+            <textarea id="notes" name="notes" rows="3" placeholder="Anything else we should know?"></textarea>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-primary">Request Tour</button>
+      </form>
+
+      <aside>
+        <div class="side-card">
+          <img id="sideThumb" class="thumb" alt="Listing">
+          <div class="price" id="sidePrice">$—</div>
+          <div class="addr" id="sideAddr">—</div>
+          <div class="meta" id="sideMeta">— Bed · — Bath · — Sq.Ft.</div>
+          <div class="pill" id="sideStatus">Active</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <footer class="footer">
+    © 2026 Midway Hollow Insider · Elite Living Realty, LLC · TREC License #9010184
+  </footer>
+
+  <script>
+    (function() {
+      const qp = new URLSearchParams(location.search);
+      const ref = qp.get('ref');
+      let ctx = {};
+      qp.forEach((v, k) => ctx[k] = v);
+      if (ref) {
+        try { const s = localStorage.getItem(ref); if (s) ctx = { ...JSON.parse(s), ...ctx }; } catch {}
+      } else {
+        try {
+          const key = sessionStorage.getItem('elr-listing-ref');
+          if (key) { const s = localStorage.getItem(key); if (s) ctx = { ...JSON.parse(s), ...ctx }; }
+        } catch {}
+      }
+
+      const money = v => v == null || v === '' ? '$—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(+String(v).replace(/[^0-9.]/g, '') || 0);
+      const get = k => ctx[k] || ctx[k.toLowerCase()];
+      const $ = id => document.getElementById(id);
+
+      const price = get('ListPrice') || get('price');
+      const addr = get('UnparsedAddress') || get('address');
+      const city = get('City'); const state = get('StateOrProvince');
+      const beds = get('BedroomsTotal') || get('beds');
+      const baths = get('BathroomsTotalInteger') || get('baths');
+      const sqft = get('LivingArea') || get('sqft');
+      const photo = get('PhotoUrl') || get('photo');
+      const status = get('MlsStatus') || get('status') || 'Active';
+
+      if (price) $('sidePrice').textContent = money(price);
+      if (addr) $('sideAddr').textContent = [addr, [city, state].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+      const metaBits = [beds ? `${beds} Bed` : null, baths ? `${baths} Bath` : null, sqft ? `${Number(sqft).toLocaleString()} Sq.Ft.` : null].filter(Boolean);
+      if (metaBits.length) $('sideMeta').textContent = metaBits.join(' · ');
+      if (photo) $('sideThumb').src = photo;
+      if (status) $('sideStatus').textContent = status;
+
+      // Set min date to today
+      const today = new Date().toISOString().split('T')[0];
+      $('tourDate').min = today;
+
+      // Capture tour submission into sessionStorage before submit
+      document.getElementById('tour-form').addEventListener('submit', function() {
+        const data = {
+          tourType: document.querySelector('input[name="tourType"]:checked')?.value,
+          tourDate: $('tourDate').value,
+          tourTime: $('tourTime').value,
+          firstName: $('firstName').value,
+          lastName: $('lastName').value,
+          email: $('email').value,
+          phone: $('phone').value,
+          workingWithAgent: $('workingWithAgent').value,
+          notes: $('notes').value,
+          listing: ctx
+        };
+        try { sessionStorage.setItem('elr-tour-submission', JSON.stringify(data)); } catch {}
+      }, { once: true });
+    })();
+  </script>
+
+  <script src="/elr-offer-onefile.js" defer></script>
+</body>
+</html>

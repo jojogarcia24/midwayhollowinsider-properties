@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Make an Offer — Midway Hollow Insider</title>
+  <link rel="icon" href="/favicon.ico">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --paper: #ffffff;
+      --cream: #f7f5f1;
+      --line: #e5e5e5;
+      --muted: #666;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, sans-serif;
+      font-weight: 300;
+      color: var(--ink);
+      background: var(--paper);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    h1, h2, h3 { font-family: 'Playfair Display', Georgia, serif; font-weight: 600; margin: 0; letter-spacing: -0.01em; }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    .nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(255,255,255,0.97); backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 1.25rem 2rem; max-width: 1400px; margin: 0 auto;
+    }
+    .logo { font-family: 'Playfair Display', serif; font-weight: 700; font-size: 1.1rem; letter-spacing: 0.08em; }
+    .logo span { font-style: italic; font-weight: 400; }
+
+    .wrap { max-width: 1080px; margin: 0 auto; padding: 3rem 2rem 5rem; }
+    .eyebrow {
+      font-size: 0.72rem; letter-spacing: 0.25em; text-transform: uppercase;
+      color: var(--muted); margin-bottom: 0.75rem;
+    }
+    .page-title h1 { font-size: clamp(2.25rem, 4.5vw, 3.5rem); margin-bottom: 0.5rem; }
+    .page-title p { color: var(--muted); font-size: 1.05rem; margin: 0 0 3rem; }
+
+    .grid {
+      display: grid;
+      grid-template-columns: 1.4fr 1fr;
+      gap: 3rem;
+      align-items: flex-start;
+    }
+    @media (max-width: 900px) { .grid { grid-template-columns: 1fr; } }
+
+    /* Form */
+    .form-card { }
+    .form-section { margin-bottom: 2.5rem; padding-bottom: 2.5rem; border-bottom: 1px solid var(--line); }
+    .form-section:last-child { border-bottom: none; }
+    .form-section h3 { font-size: 1.5rem; margin-bottom: 0.35rem; }
+    .form-section .hint { color: var(--muted); font-size: 0.9rem; margin-bottom: 1.5rem; }
+
+    .field { margin-bottom: 1.25rem; }
+    .field label {
+      display: block;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--muted);
+    }
+    .field input,
+    .field select,
+    .field textarea {
+      width: 100%;
+      padding: 0.95rem 1rem;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 300;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      color: var(--ink);
+      transition: border-color 0.2s;
+    }
+    .field input:focus,
+    .field select:focus,
+    .field textarea:focus { outline: none; border-color: var(--ink); }
+    .field select {
+      appearance: none;
+      background-image: url("data:image/svg+xml;charset=US-ASCII,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath d='M3 5l3 3 3-3' stroke='%23000' fill='none'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+    }
+    .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    @media (max-width: 600px) { .field-row { grid-template-columns: 1fr; } }
+
+    /* Slider */
+    .range-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; }
+    .range-row .val { font-family: 'Playfair Display', serif; font-size: 1.1rem; }
+    input[type=range] {
+      width: 100%;
+      -webkit-appearance: none;
+      height: 2px;
+      background: var(--line);
+      outline: none;
+    }
+    input[type=range]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 18px; height: 18px;
+      background: var(--ink); border-radius: 50%;
+      cursor: pointer;
+    }
+    input[type=range]::-moz-range-thumb {
+      width: 18px; height: 18px;
+      background: var(--ink); border-radius: 50%;
+      cursor: pointer; border: none;
+    }
+
+    .btn-primary {
+      display: inline-block;
+      width: 100%;
+      background: var(--ink);
+      color: var(--paper);
+      padding: 1.15rem 2rem;
+      font-size: 0.85rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 500;
+      border: 1px solid var(--ink);
+      cursor: pointer;
+      text-align: center;
+      transition: all 0.2s;
+    }
+    .btn-primary:hover { background: var(--paper); color: var(--ink); }
+
+    /* Sticky property card */
+    .side-card {
+      position: sticky;
+      top: 100px;
+      background: var(--cream);
+      padding: 1.75rem;
+      border: 1px solid var(--line);
+    }
+    .side-card .thumb {
+      width: 100%;
+      aspect-ratio: 4/3;
+      object-fit: cover;
+      margin-bottom: 1.25rem;
+      background: #ddd;
+    }
+    .side-card .price { font-family: 'Playfair Display', serif; font-size: 1.75rem; font-weight: 600; margin-bottom: 0.25rem; }
+    .side-card .addr { font-size: 0.95rem; margin-bottom: 0.25rem; }
+    .side-card .meta { font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 1rem; }
+    .side-card .pill {
+      display: inline-block;
+      background: var(--ink); color: var(--paper);
+      padding: 0.3rem 0.7rem;
+      font-size: 0.65rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
+
+    .footer {
+      background: var(--cream);
+      border-top: 1px solid var(--line);
+      padding: 2rem;
+      text-align: center;
+      font-size: 0.75rem;
+      color: var(--muted);
+      letter-spacing: 0.05em;
+    }
+  </style>
+</head>
+<body>
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">MIDWAY HOLLOW <span>INSIDER</span></a>
+    </div>
+  </nav>
+
+  <div class="wrap">
+    <div class="eyebrow">Make an Offer</div>
+    <div class="page-title">
+      <h1>Submit your offer.</h1>
+      <p>One short form. An agent reviews and responds within 24 hours.</p>
+    </div>
+
+    <div class="grid">
+      <div>
+        <form id="offer-form" action="/thanks-offer.html" method="GET" class="form-card">
+
+          <div class="form-section">
+            <h3>Offer Details</h3>
+            <p class="hint">Our recommended offer defaults to list price — adjust as you'd like.</p>
+
+            <div class="field">
+              <label for="offerAmount">Offer Amount</label>
+              <input id="offerAmount" name="offerAmount" type="text" placeholder="$0" inputmode="numeric" />
+            </div>
+
+            <div class="field">
+              <label for="financeType">Financing</label>
+              <select id="financeType" name="finance" data-elr="finance">
+                <option value="">Select financing type</option>
+                <option>Conventional</option>
+                <option>Cash</option>
+                <option>FHA</option>
+                <option>VA</option>
+                <option>Jumbo</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <div class="range-row">
+                <label style="margin:0">Down Payment %</label>
+                <span class="val"><span id="downPctLabel" data-elr="downPct">20</span>%</span>
+              </div>
+              <input id="downPercent" name="downPercent" type="range" min="0" max="100" value="20" step="1" />
+            </div>
+
+            <div class="field">
+              <div class="range-row">
+                <label style="margin:0">Down Payment $</label>
+                <span class="val" id="downAmtLabel" data-elr="downAmt">$0</span>
+              </div>
+              <input id="downAmount" name="downAmount" type="text" placeholder="$0" inputmode="numeric" />
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Your Information</h3>
+            <p class="hint">We'll use this to reach out and keep you updated.</p>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="firstName">First Name</label>
+                <input id="firstName" name="firstName" type="text" required />
+              </div>
+              <div class="field">
+                <label for="lastName">Last Name</label>
+                <input id="lastName" name="lastName" type="text" required />
+              </div>
+            </div>
+
+            <div class="field">
+              <label for="email">Email</label>
+              <input id="email" name="email" type="email" required />
+            </div>
+
+            <div class="field">
+              <label for="phone">Phone</label>
+              <input id="phone" name="phone" type="tel" required />
+            </div>
+
+            <div class="field">
+              <label for="touredBefore">Have you toured this home?</label>
+              <select id="touredBefore" name="touredBefore">
+                <option value="">Select</option>
+                <option>Yes — in person</option>
+                <option>Yes — virtually</option>
+                <option>No — but I'd like to</option>
+                <option>No — submitting offer as-is</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="notes">Notes (optional)</label>
+              <textarea id="notes" name="notes" rows="4" placeholder="Seller concessions, closing timing, inspection preferences, etc."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-primary">Submit Offer</button>
+
+          <p style="font-size:0.75rem; color:var(--muted); margin-top:1rem; text-align:center; letter-spacing: 0.05em;">
+            By submitting, you agree to be contacted by Elite Living Realty about this property.
+          </p>
+        </form>
+      </div>
+
+      <aside>
+        <div class="side-card">
+          <img id="sideThumb" class="thumb" alt="Listing">
+          <div class="price" id="sidePrice">$—</div>
+          <div class="addr" id="sideAddr">—</div>
+          <div class="meta" id="sideMeta">— Bed · — Bath · — Sq.Ft.</div>
+          <div class="pill" id="sideStatus">Active</div>
+        </div>
+      </aside>
+    </div>
+  </div>
+
+  <footer class="footer">
+    © 2026 Midway Hollow Insider · Elite Living Realty, LLC · TREC License #9010184
+  </footer>
+
+  <script>
+    // Hydrate the side card from URL params or stashed context
+    (function() {
+      const qp = new URLSearchParams(location.search);
+      const ref = qp.get('ref');
+      let ctx = {};
+      // URL first
+      qp.forEach((v, k) => ctx[k] = v);
+      // Then stashed (URL wins)
+      if (ref) {
+        try {
+          const s = localStorage.getItem(ref);
+          if (s) ctx = { ...JSON.parse(s), ...ctx };
+        } catch {}
+      } else {
+        // Check sessionStorage
+        try {
+          const key = sessionStorage.getItem('elr-listing-ref');
+          if (key) {
+            const s = localStorage.getItem(key);
+            if (s) ctx = { ...JSON.parse(s), ...ctx };
+          }
+        } catch {}
+      }
+
+      const money = v => v == null || v === '' ? '$—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(+String(v).replace(/[^0-9.]/g, '') || 0);
+      const get = k => ctx[k] || ctx[k.toLowerCase()];
+      const $ = id => document.getElementById(id);
+
+      const price = get('ListPrice') || get('price');
+      const addr = get('UnparsedAddress') || get('address');
+      const city = get('City'); const state = get('StateOrProvince');
+      const beds = get('BedroomsTotal') || get('beds');
+      const baths = get('BathroomsTotalInteger') || get('baths');
+      const sqft = get('LivingArea') || get('sqft');
+      const photo = get('PhotoUrl') || get('photo');
+      const status = get('MlsStatus') || get('status') || 'Active';
+
+      if (price) { $('sidePrice').textContent = money(price); $('offerAmount').value = money(price); }
+      if (addr) $('sideAddr').textContent = [addr, [city, state].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+      const metaBits = [beds ? `${beds} Bed` : null, baths ? `${baths} Bath` : null, sqft ? `${Number(sqft).toLocaleString()} Sq.Ft.` : null].filter(Boolean);
+      if (metaBits.length) $('sideMeta').textContent = metaBits.join(' · ');
+      if (photo) $('sideThumb').src = photo;
+      if (status) $('sideStatus').textContent = status;
+
+      // Sync % ↔ $
+      const priceNum = () => Number(String($('offerAmount').value).replace(/[^0-9.]/g, '')) || 0;
+      const syncFromPct = () => {
+        const pct = +$('downPercent').value;
+        $('downPctLabel').textContent = pct;
+        const amt = Math.round(priceNum() * pct / 100);
+        $('downAmount').value = money(amt);
+        $('downAmtLabel').textContent = money(amt);
+      };
+      const syncFromAmt = () => {
+        const amt = Number(String($('downAmount').value).replace(/[^0-9.]/g, '')) || 0;
+        const pct = priceNum() ? Math.round(amt / priceNum() * 100) : 0;
+        $('downPercent').value = pct;
+        $('downPctLabel').textContent = pct;
+        $('downAmtLabel').textContent = money(amt);
+      };
+      $('downPercent').addEventListener('input', syncFromPct);
+      $('downAmount').addEventListener('blur', syncFromAmt);
+      $('offerAmount').addEventListener('blur', () => {
+        const n = priceNum();
+        if (n) $('offerAmount').value = money(n);
+        syncFromPct();
+      });
+      syncFromPct();
+    })();
+  </script>
+
+  <script src="/elr-offer-onefile.js" defer></script>
+</body>
+</html>

@@ -1,0 +1,958 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover"/>
+  <title>Midway Hollow Insider — Listing</title>
+  <link rel="icon" href="/favicon.ico">
+  <meta name="description" content="Photos, details, and payment estimate for this Midway Hollow property.">
+  <meta name="robots" content="index,follow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+  <meta name="theme-color" content="#ffffff">
+  <link rel="canonical" id="canon" href="">
+  <meta property="og:type" content="article">
+  <meta property="og:title" content="Midway Hollow Insider — Listing">
+  <meta property="og:description" content="Photos, details, and payment estimate for this Midway Hollow property.">
+  <meta property="og:image" content="">
+  <meta property="og:url" content="">
+  <meta name="twitter:card" content="summary_large_image">
+
+  <style>
+    :root {
+      --ink: #0a0a0a;
+      --paper: #ffffff;
+      --cream: #f7f5f1;
+      --line: #e5e5e5;
+      --muted: #666;
+      --muted-2: #888;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      font-weight: 300;
+      background: var(--paper);
+      color: var(--ink);
+      line-height: 1.6;
+      -webkit-font-smoothing: antialiased;
+    }
+    a { color: inherit; text-decoration: none; }
+    img { max-width: 100%; display: block; }
+
+    h1, h2, h3, h4 {
+      font-family: 'Playfair Display', Georgia, serif;
+      font-weight: 600;
+      line-height: 1.15;
+      letter-spacing: -0.01em;
+      margin: 0;
+    }
+
+    .container { max-width: 1200px; margin: 0 auto; padding: 2rem; }
+    .section {
+      margin-bottom: 3rem;
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity .6s ease, transform .6s ease;
+    }
+    .section.visible { opacity: 1; transform: translateY(0); }
+    .hide { display: none !important; }
+
+    @media (prefers-reduced-motion: reduce) {
+      .section { transition: none; opacity: 1; transform: none; }
+      .skeleton::after { animation: none; }
+    }
+
+    /* Skeleton placeholders */
+    .skeleton { position: relative; overflow: hidden; background: var(--cream); }
+    .skeleton::after {
+      content: ""; position: absolute; inset: 0;
+      background: linear-gradient(90deg, rgba(0,0,0,0), rgba(0,0,0,.04), rgba(0,0,0,0));
+      transform: translateX(-100%); animation: shimmer 1.8s infinite;
+    }
+    @keyframes shimmer { 100% { transform: translateX(100%); } }
+
+    /* ===== NAV ===== */
+    .nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(255,255,255,0.97);
+      backdrop-filter: blur(8px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 2rem;
+      max-width: 1400px;
+      margin: 0 auto;
+      gap: 2rem;
+    }
+    .logo {
+      font-family: 'Playfair Display', serif;
+      font-weight: 700;
+      font-size: 1.1rem;
+      letter-spacing: 0.08em;
+      color: var(--ink);
+    }
+    .logo span { font-style: italic; font-weight: 400; }
+    .nav-links {
+      display: flex;
+      list-style: none;
+      gap: 2rem;
+      margin: 0 auto;
+      padding: 0;
+    }
+    .nav-links a {
+      font-size: 0.85rem;
+      letter-spacing: 0.05em;
+      transition: opacity 0.2s;
+    }
+    .nav-links a:hover { opacity: 0.5; }
+    .nav-info {
+      font-size: 0.78rem;
+      letter-spacing: 0.1em;
+      color: var(--muted);
+    }
+    @media (max-width: 900px) {
+      .nav-links, .nav-info { display: none; }
+    }
+
+    /* ===== PHOTOS ===== */
+    .photo-gallery-container {
+      display: flex;
+      gap: 1rem;
+    }
+    .hero-image-container {
+      flex: 3;
+      position: relative;
+      aspect-ratio: 3/2;
+    }
+    .hero-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: none;
+    }
+    .hero-placeholder { height: 100%; }
+    .hero-image-buttons {
+      position: absolute;
+      bottom: 1rem;
+      left: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+    .hero-image-buttons .button {
+      background: rgba(255,255,255,0.95);
+      color: var(--ink);
+      border: 1px solid var(--ink);
+      padding: 0.6rem 1.1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .hero-image-buttons .button:hover { background: var(--ink); color: var(--paper); }
+    .hero-image-buttons .icon { fill: currentColor; width: 14px; height: 14px; }
+    .image-grid-container {
+      flex: 2;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      position: relative;
+    }
+    .grid-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      cursor: pointer;
+      aspect-ratio: 4/3;
+    }
+    .grid-placeholder { aspect-ratio: 4/3; }
+    .photo-overlay {
+      position: absolute;
+      bottom: 10px;
+      right: 10px;
+      background: rgba(255,255,255,0.95);
+      color: var(--ink);
+      padding: 0.5rem 1rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+      .photo-gallery-container { flex-direction: column; }
+    }
+
+    /* ===== PRICE + ADDRESS + CTAS ===== */
+    .price {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 5vw, 3.75rem);
+      font-weight: 600;
+      margin: 2rem 0 0.35rem;
+      letter-spacing: -0.02em;
+    }
+    .subaddress {
+      font-size: 1.15rem;
+      color: var(--muted);
+      margin: 0 0 1.5rem;
+    }
+    .cta-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      margin-bottom: 2rem;
+    }
+    .cta-buttons a {
+      flex: 1 1 auto;
+      padding: 0.95rem 1.75rem;
+      background: var(--paper);
+      color: var(--ink);
+      border: 1px solid var(--ink);
+      font-size: 0.8rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      transition: all 0.2s;
+    }
+    .cta-buttons a:hover { background: var(--ink); color: var(--paper); }
+    .cta-buttons a.primary { background: var(--ink); color: var(--paper); }
+    .cta-buttons a.primary:hover { background: var(--paper); color: var(--ink); }
+    .icon { width: 14px; height: 14px; fill: currentColor; }
+
+    /* ===== HIGHLIGHTS (stat tiles) ===== */
+    .property-highlights {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 0;
+      margin-top: 2rem;
+      margin-bottom: 3rem;
+      border-top: 1px solid var(--line);
+      border-left: 1px solid var(--line);
+    }
+    .highlight {
+      padding: 1.5rem 1.75rem;
+      border-right: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+    .highlight .icon { fill: var(--ink); width: 20px; height: 20px; }
+    .highlight > div:first-of-type { flex: 1; }
+    .highlight > div > div:first-child {
+      font-family: 'Playfair Display', serif;
+      font-weight: 600;
+      font-size: 1.25rem;
+    }
+    .highlight small {
+      display: block;
+      color: var(--muted);
+      margin-top: 0.25rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+    }
+
+    /* ===== SECTIONS ===== */
+    .section-eyebrow {
+      font-size: 0.72rem;
+      letter-spacing: 0.25em;
+      text-transform: uppercase;
+      font-weight: 500;
+      color: var(--muted);
+      margin-bottom: 0.75rem;
+    }
+    .section h3 {
+      font-size: 1.75rem;
+      margin-bottom: 1.25rem;
+    }
+    #about-section p { color: #222; font-size: 1.05rem; }
+
+    /* ===== DETAILS (collapsible) ===== */
+    details {
+      border-top: 1px solid var(--line);
+      margin-top: 0;
+    }
+    details:last-child { border-bottom: 1px solid var(--line); }
+    details summary {
+      cursor: pointer;
+      font-weight: 500;
+      padding: 1.25rem 0;
+      font-size: 0.85rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      list-style: none;
+    }
+    details summary::-webkit-details-marker { display: none; }
+    details summary::after {
+      content: '+';
+      font-family: 'Playfair Display', serif;
+      font-size: 1.5rem;
+      font-weight: 400;
+      transition: transform .3s;
+    }
+    details[open] summary::after { content: '−'; }
+    details > div {
+      padding: 0 0 1.5rem;
+      display: flex;
+      gap: 2rem;
+      flex-wrap: wrap;
+      color: #333;
+    }
+    details ul {
+      margin: 0;
+      padding: 0;
+      list-style: none;
+    }
+    details ul li {
+      padding: 0.25rem 0;
+      font-size: 0.95rem;
+    }
+
+    /* ===== AROUND THIS HOME / MAP ===== */
+    .around-home-section {
+      background: var(--cream);
+      padding: 2.5rem;
+      margin-bottom: 3rem;
+    }
+    .around-home-header { text-align: center; margin-bottom: 1.5rem; }
+    .around-home-header h3 { font-size: 2rem; }
+    .map-container {
+      height: 360px;
+      background: #ddd;
+      margin-top: 1rem;
+      overflow: hidden;
+      position: relative;
+    }
+    .map-container iframe { width: 100%; height: 100%; border: 0; }
+    .map-overlay {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--muted);
+      font-size: 0.9rem;
+      font-style: italic;
+    }
+    .nearby-amenities {
+      margin-top: 2rem;
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 2rem;
+    }
+    .nearby-amenities h4 {
+      grid-column: span 2;
+      text-align: center;
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .nearby-amenities h5 {
+      font-family: 'Inter', sans-serif;
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin: 1rem 0 0.5rem;
+      color: var(--muted);
+    }
+    .nearby-amenities ul { list-style: none; padding: 0; }
+    .nearby-amenities li { padding: 0.35rem 0; border-bottom: 1px solid var(--line); font-size: 0.95rem; }
+    .nearby-amenities li a { transition: opacity 0.2s; }
+    .nearby-amenities li a:hover { opacity: 0.5; }
+
+    @media (max-width: 640px) {
+      .nearby-amenities { grid-template-columns: 1fr; }
+      .nearby-amenities h4 { grid-column: span 1; }
+    }
+
+    /* ===== MORTGAGE CALCULATOR ===== */
+    .mortgage-calc {
+      background: var(--ink);
+      color: var(--paper);
+      padding: 3rem 2.5rem;
+      margin-bottom: 3rem;
+    }
+    .mortgage-calc h3 { color: var(--paper); font-size: 2rem; margin-bottom: 0.5rem; }
+    .mortgage-calculator-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .mortgage-calculator-header .reset {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.4);
+      color: var(--paper);
+      padding: 0.5rem 1rem;
+      font-size: 0.72rem;
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mortgage-calculator-header .reset:hover { background: var(--paper); color: var(--ink); }
+    .mortgage-calculator-total {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(2.5rem, 6vw, 4rem);
+      font-weight: 600;
+      margin: 1rem 0 0.5rem;
+    }
+    .mortgage-calculator-total small { font-size: 0.95rem; color: rgba(255,255,255,0.6); font-family: 'Inter', sans-serif; }
+    .mortgage-calculator-bar {
+      height: 4px;
+      display: flex;
+      overflow: hidden;
+      margin: 1.5rem 0;
+      background: rgba(255,255,255,0.1);
+    }
+    .bar-segment.principal { background: #fff; }
+    .bar-segment.taxes { background: rgba(255,255,255,0.65); }
+    .bar-segment.insurance { background: rgba(255,255,255,0.4); }
+    .bar-segment.hoa { background: rgba(255,255,255,0.2); }
+    .mortgage-calc-breakdown {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 0.5rem 1.5rem;
+      margin-bottom: 2rem;
+      padding-bottom: 2rem;
+      border-bottom: 1px solid rgba(255,255,255,0.15);
+    }
+    .mortgage-calc-breakdown .label { color: rgba(255,255,255,0.75); font-size: 0.95rem; }
+    .mortgage-calc-breakdown .value { font-weight: 500; }
+    .mortgage-calc-breakdown .editable { cursor: pointer; border-bottom: 1px dashed rgba(255,255,255,0.4); }
+    .mortgage-calc-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 1rem;
+    }
+    .mortgage-calc-grid-item {
+      background: rgba(255,255,255,0.06);
+      padding: 1.25rem;
+      cursor: pointer;
+    }
+    .mortgage-calc-grid-item .label {
+      font-size: 0.7rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: rgba(255,255,255,0.6);
+      margin-bottom: 0.5rem;
+    }
+    .mortgage-calc-grid-item .value {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      font-weight: 600;
+    }
+    .mortgage-calc-grid-item .edit-icon { fill: rgba(255,255,255,0.5); width: 14px; height: 14px; margin-left: 0.5rem; }
+    .mortgage-calc-prequalified {
+      display: flex !important;
+      justify-content: space-between !important;
+      align-items: center !important;
+      margin-top: 1.5rem !important;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .mortgage-calc-prequalified .text { color: rgba(255,255,255,0.7); font-size: 0.9rem; }
+    .mortgage-calc-prequalified a {
+      background: var(--paper);
+      color: var(--ink);
+      padding: 0.85rem 1.5rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .mortgage-calc-prequalified a:hover { opacity: 0.85; }
+
+    /* ===== FOOTER ===== */
+    .footer {
+      background: var(--cream);
+      padding: 4rem 2rem 2rem;
+      font-size: 0.9rem;
+      border-top: 1px solid var(--line);
+    }
+    .footer-inner { max-width: 1200px; margin: 0 auto; }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr 1fr 1fr;
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+    @media (max-width: 768px) { .footer-grid { grid-template-columns: 1fr 1fr; } }
+    .footer-head {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      color: var(--muted-2);
+    }
+    .footer a { display: block; margin-bottom: 0.5rem; transition: opacity 0.2s; }
+    .footer a:hover { opacity: 0.55; }
+    .footer-tag { color: var(--muted); margin-top: 0.75rem; }
+    .footer-legal {
+      border-top: 1px solid var(--line);
+      padding-top: 2rem;
+      display: flex;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.72rem;
+      color: var(--muted-2);
+      letter-spacing: 0.05em;
+    }
+    .legal-section { max-width: 1200px; margin: 0 auto; padding: 2rem 0; }
+    .legal-section-title {
+      font-size: 0.72rem;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      color: var(--muted-2);
+      margin: 1.5rem 0 0.5rem;
+    }
+    .legal-section p { font-size: 0.85rem; color: #444; margin: 0 0 0.75rem; }
+    .legal-section a { display: inline; color: var(--ink); text-decoration: underline; }
+
+    /* Responsive overrides */
+    @media (max-width: 768px) {
+      .container { padding: 1.5rem 1rem; }
+      .cta-buttons a { flex: 1 1 calc(50% - 0.75rem); font-size: 0.72rem; padding: 0.85rem 1rem; }
+      .around-home-section { padding: 1.5rem; }
+      .mortgage-calc { padding: 2rem 1.5rem; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- ===== NAV ===== -->
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="/" class="logo">MIDWAY HOLLOW <span>INSIDER</span></a>
+      <ul class="nav-links">
+        <li><a href="/">Home</a></li>
+        <li><a href="/#homes">Homes</a></li>
+        <li><a href="/#neighborhood">Neighborhood</a></li>
+        <li><a href="/#market">Market</a></li>
+        <li><a href="/#about">About</a></li>
+      </ul>
+      <div class="nav-info"><span id="dallas-datetime"></span></div>
+    </div>
+  </nav>
+
+  <div class="container" id="property-details-container">
+
+    <!-- ===== PHOTOS ===== -->
+    <section class="section photo-gallery-container" id="photos-section">
+      <div class="hero-image-container">
+        <img id="main-photo" class="hero-image" alt="Main Property Photo" fetchpriority="high" decoding="async" sizes="(max-width: 768px) 100vw, 70vw"/>
+        <div id="hero-ph" class="hero-placeholder skeleton"></div>
+        <div class="hero-image-buttons">
+          <a href="#" class="button" id="street-view-button">
+            <svg class="icon" aria-hidden="true" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5S10.62 6.5 12 6.5s2.5 1.12 2.5 2.5S13.38 11.5 12 11.5z"/></svg>
+            Street View
+          </a>
+        </div>
+      </div>
+      <div class="image-grid-container" id="image-grid">
+        <div class="grid-placeholder skeleton"></div>
+        <div class="grid-placeholder skeleton"></div>
+        <div class="grid-placeholder skeleton"></div>
+        <div class="grid-placeholder skeleton"></div>
+      </div>
+    </section>
+
+    <!-- ===== PRICE + ADDRESS + CTAS ===== -->
+    <div class="price" id="property-price">—</div>
+    <div class="subaddress" id="property-address">—</div>
+
+    <div class="cta-buttons">
+      <a href="#showing" class="js-schedule-tour">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zm-7-9h5v5h-5v-5z"/></svg>
+        Schedule Tour
+      </a>
+      <a href="#make-offer" class="primary js-make-offer">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C8.48 2 5.29 4.67 4.33 8H2v2h2v8h16V10h2V8h-2c-1.14-3.33-4.15-6-7.66-6z"/></svg>
+        Make an Offer
+      </a>
+      <a href="#">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
+        Save
+      </a>
+      <a href="#" id="share-button">
+        <svg class="icon" viewBox="0 0 24 24"><path d="M18 16.08a2.92 2.92 0 0 1-2.14-.86L7.4 12a2.9 2.9 0 0 1 0-4l8.46-3.22a2.9 2.9 0 0 1 2.14-.86c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg>
+        Share
+      </a>
+    </div>
+
+    <!-- ===== HIGHLIGHTS ===== -->
+    <div class="property-highlights" id="highlights">
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M12 20c4.418 0 8-3.582 8-8S16.418 4 12 4 4 7.582 4 12s3.582 8 8 8z"/></svg><div><div id="days-on-market">—</div><small>Days on Market</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M12 3l8 6v12H4V9l8-6z"/></svg><div><div id="property-type">—</div><small>Property Type</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M19 3H5a2 2 0 00-2 2v14l4-4h12a2 2 0 002-2V5a2 2 0 00-2-2z"/></svg><div><div id="property-year">—</div><small>Year Built</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M22 12v2H2v-2h20z"/></svg><div><div id="property-beds">—</div><small>Beds</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M3 13h18v8H3zM3 7h10v4H3z"/></svg><div><div id="property-baths">—</div><small>Baths</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M2 6v16h20V6H2zm2 2h16v12H4V8z"/></svg><div><div id="property-sqft">—</div><small>Living Sq.Ft.</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M4 6h16v12H4z"/></svg><div><div id="property-lot">—</div><small>Lot Size</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M2 12h20v2H2z"/></svg><div><div id="property-price-sqft">—</div><small>Price / Sq.Ft.</small></div></div>
+      <div class="highlight"><svg class="icon" viewBox="0 0 24 24"><path d="M3 17v-6a2 2 0 012-2h2V7a2 2 0 012-2h6a2 2 0 012 2v2h2a2 2 0 012 2v6"/></svg><div><div id="property-garage">—</div><small>Parking</small></div></div>
+    </div>
+
+    <!-- ===== MLS STATUS (hidden field for capture) ===== -->
+    <div class="mls-status hide" id="mlsStatus" data-elr="mls">Active</div>
+
+    <!-- ===== ABOUT ===== -->
+    <section class="section" id="about-section">
+      <div class="section-eyebrow">About</div>
+      <h3>About This Home</h3>
+      <p id="property-remarks">Property details loading…</p>
+    </section>
+
+    <!-- ===== DETAILS ===== -->
+    <section class="section" id="details-section">
+      <div class="section-eyebrow">The Details</div>
+      <h3>Property Details</h3>
+
+      <details><summary>Parking</summary>
+        <div><ul id="parking-list"></ul></div>
+      </details>
+
+      <details><summary>Interior</summary>
+        <div><ul id="interior-list"></ul></div>
+      </details>
+
+      <details><summary>Exterior</summary>
+        <div><ul id="exterior-list"></ul></div>
+      </details>
+
+      <details><summary>Financial</summary>
+        <div><ul id="financial-list"></ul></div>
+      </details>
+
+      <details><summary>Utilities</summary>
+        <div><ul id="utilities-list"></ul></div>
+      </details>
+
+      <details><summary>Location</summary>
+        <div><ul id="location-list"></ul></div>
+      </details>
+
+      <details><summary>Other</summary>
+        <div><ul id="other-list"></ul></div>
+      </details>
+
+      <details><summary>Public Facts</summary>
+        <div><ul id="public-list"></ul></div>
+      </details>
+    </section>
+
+    <!-- ===== AROUND THIS HOME ===== -->
+    <section class="section around-home-section" id="around-section">
+      <div class="around-home-header">
+        <div class="section-eyebrow">The Neighborhood</div>
+        <h3>Around This Home</h3>
+      </div>
+      <div class="map-container">
+        <iframe id="property-map" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+        <div id="map-overlay" class="map-overlay">Map will appear once the address is loaded.</div>
+      </div>
+      <div class="nearby-amenities">
+        <h4>Nearby</h4>
+        <div>
+          <h5>Schools</h5>
+          <ul id="nearby-schools"><li>—</li></ul>
+        </div>
+        <div>
+          <h5>Dining &amp; Shopping</h5>
+          <ul id="nearby-dining"><li>—</li></ul>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== MORTGAGE CALCULATOR ===== -->
+    <section class="section mortgage-calc" id="mortgage-calc">
+      <div class="mortgage-calculator-header">
+        <h3>Estimated Monthly Payment</h3>
+        <button class="reset" id="calc-reset" type="button">Reset</button>
+      </div>
+      <div class="mortgage-calculator-total" role="status" aria-live="polite">
+        <span id="monthly-payment-total">$—</span>
+        <small>/ month</small>
+      </div>
+      <div class="mortgage-calculator-bar">
+        <div class="bar-segment principal" id="bar-principal" style="width:50%"></div>
+        <div class="bar-segment taxes" id="bar-taxes" style="width:25%"></div>
+        <div class="bar-segment insurance" id="bar-insurance" style="width:15%"></div>
+        <div class="bar-segment hoa" id="bar-hoa" style="width:0%"></div>
+      </div>
+      <div class="mortgage-calc-breakdown">
+        <div class="label">Principal &amp; Interest</div><div class="value" id="breakdown-principal">$—</div>
+        <div class="label">Property Taxes</div><div class="value editable" id="breakdown-taxes">$—</div>
+        <div class="label">Homeowners Insurance</div><div class="value editable" id="breakdown-insurance">$—</div>
+        <div class="label">HOA Dues</div><div class="value editable" id="breakdown-hoa">$—</div>
+      </div>
+      <div class="mortgage-calc-grid">
+        <div class="mortgage-calc-grid-item">
+          <div class="label">Down Payment</div>
+          <div class="value" id="edit-down-payment"><span id="display-down-payment">20%</span></div>
+        </div>
+        <div class="mortgage-calc-grid-item">
+          <div class="label">Home Price</div>
+          <div class="value" id="edit-home-price"><span id="display-home-price">$—</span></div>
+        </div>
+        <div class="mortgage-calc-grid-item">
+          <div class="label">Loan Details</div>
+          <div class="value" id="edit-loan-details"><span id="display-loan-details">30-yr · 7.0%</span></div>
+        </div>
+      </div>
+      <div class="mortgage-calc-prequalified">
+        <div class="text">Takes ~5 minutes &amp; won't affect your credit</div>
+        <a href="#prequalify">Get Pre-Qualified</a>
+      </div>
+    </section>
+
+    <!-- ===== LEGAL ===== -->
+    <section class="legal-section">
+      <div class="legal-section-title">TREC Notices</div>
+      <p><a href="/docs/trec-agency-disclosure.pdf" target="_blank" rel="noopener">Information About Brokerage Services (IABS)</a> &nbsp;·&nbsp; <a href="/docs/trec-consumer-protection.pdf" target="_blank" rel="noopener">Consumer Protection Notice</a></p>
+
+      <div class="legal-section-title">Affiliated Business Disclosure</div>
+      <p>Elite Living Realty, LLC operates the Midway Hollow Insider brand. Broker relationships with affiliated service providers, if any, are disclosed in writing prior to any referral.</p>
+
+      <div class="legal-section-title">Fair Housing</div>
+      <p>Midway Hollow Insider fully supports the principles of the Fair Housing Act and the Equal Opportunity Act.</p>
+    </section>
+
+  </div>
+
+  <!-- ===== FOOTER ===== -->
+  <footer class="footer">
+    <div class="footer-inner">
+      <div class="footer-grid">
+        <div>
+          <div class="logo">MIDWAY HOLLOW <span>INSIDER</span></div>
+          <p class="footer-tag">A local's guide to Midway Hollow, Dallas.</p>
+        </div>
+        <div>
+          <div class="footer-head">Explore</div>
+          <a href="/">Home</a>
+          <a href="/#homes">Homes</a>
+          <a href="/#neighborhood">Neighborhood</a>
+          <a href="/#market">Market</a>
+        </div>
+        <div>
+          <div class="footer-head">Follow</div>
+          <a href="#">Instagram</a>
+          <a href="#">TikTok</a>
+          <a href="#">YouTube</a>
+        </div>
+        <div>
+          <div class="footer-head">Contact</div>
+          <a href="mailto:jojo@elitelivingrealty.com">jojo@elitelivingrealty.com</a>
+          <a href="tel:2147253348">(214) 725-3348</a>
+        </div>
+      </div>
+      <div class="footer-legal">
+        <div>© 2026 Midway Hollow Insider · Elite Living Realty, LLC · Dallas, TX</div>
+        <div>TREC License #9010184 · Broker · Equal Housing Opportunity</div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- ===== DATA HYDRATION ===== -->
+  <script>
+    // Grab URL params + any stashed listing
+    const __qp = new URLSearchParams(location.search);
+    let listingData = Object.fromEntries(__qp.entries());
+    const sid = __qp.get('ListingId');
+    const skey = sid ? `listing:${sid}` : null;
+    if (skey) {
+      try {
+        const stash = sessionStorage.getItem(skey);
+        if (stash) listingData = { ...JSON.parse(stash), ...listingData };
+      } catch {}
+    }
+    window.__LISTING__ = listingData;
+    const VENDOR = __qp.get('vendor') || 'ntreis';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      // Canonical
+      const keep = new Set(['ListingId']);
+      const url = new URL(location.href);
+      [...url.searchParams.keys()].forEach(k => { if (!keep.has(k)) url.searchParams.delete(k); });
+      document.getElementById('canon').href = url.origin + url.pathname + (url.searchParams.toString() ? '?' + url.searchParams : '');
+
+      const p = new URLSearchParams(location.search);
+      const all = {};
+      Object.entries(listingData).forEach(([k, v]) => { all[k] = v; all[k.toLowerCase()] = v; });
+      p.forEach((v, k) => { all[k] = v; all[k.toLowerCase()] = v; });
+
+      const get = k => all[k] ?? all[k.toLowerCase()];
+      const num = (...keys) => {
+        for (const k of keys) {
+          let v = get(k); if (v == null || v === '') continue;
+          v = ('' + v).replace(/[, ]/g, '');
+          const n = Number(v); if (!Number.isNaN(n)) return n;
+        }
+        return null;
+      };
+      const txt = (...keys) => {
+        for (const k of keys) {
+          const v = get(k); if (v && String(v).trim() !== '') return String(v).trim();
+        }
+        return null;
+      };
+      const $ = id => document.getElementById(id);
+      const money = v => v == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
+
+      const data = {
+        price: num('ListPrice','price','list_price','Price'),
+        remarks: txt('PublicRemarks','remarks','description','propertyRemarks'),
+        address: txt('UnparsedAddress','address','streetAddress'),
+        city: txt('City','city'),
+        state: txt('StateOrProvince','state'),
+        zip: txt('PostalCode','zip','zipcode'),
+        type: txt('PropertySubType','PropertyType','propertyType','type') || 'Residential',
+        year: txt('YearBuilt','yearBuilt'),
+        beds: txt('BedroomsTotal','Bedrooms','beds','bedrooms'),
+        baths: txt('BathroomsTotalInteger','BathroomsFull','BathroomsTotal','baths','bathrooms'),
+        sqft: num('LivingArea','BuildingAreaTotal','SqFt','sqft'),
+        lot: txt('LotSizeAcres','LotSizeSquareFeet','LotSize','lot'),
+        garage: txt('GarageSpaces','ParkingTotal','parking','garage'),
+        dom: num('DaysOnMarket','CumulativeDaysOnMarket','DOM','DaysOnElite'),
+        mlsStatus: txt('MlsStatus','Status','status'),
+        photo: txt('PhotoUrl','PrimaryPhoto','photo','image','Media_MediaUrl'),
+        photos: txt('Photos','Media','images'),
+        listingId: txt('ListingId','MlsId','listingId'),
+        taxes: num('TaxAnnualAmount','annualTax'),
+        hoa: num('AssociationFee','HOAFee','hoa')
+      };
+
+      // Price + address
+      if (data.price) $('property-price').textContent = money(data.price);
+      const fullAddr = [data.address, [data.city, data.state, data.zip].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+      if (fullAddr) $('property-address').textContent = fullAddr;
+      if (data.remarks) $('property-remarks').textContent = data.remarks;
+
+      // Highlights
+      const setTile = (id, val) => { const el = $(id); if (el && val != null && val !== '') el.textContent = val; };
+      setTile('days-on-market', data.dom);
+      setTile('property-type', data.type);
+      setTile('property-year', data.year);
+      setTile('property-beds', data.beds);
+      setTile('property-baths', data.baths);
+      setTile('property-sqft', data.sqft ? Number(data.sqft).toLocaleString() : null);
+      setTile('property-lot', data.lot);
+      setTile('property-garage', data.garage);
+      if (data.price && data.sqft) setTile('property-price-sqft', money(Math.round(data.price / data.sqft)));
+
+      // MLS status (captured by elr-offer script)
+      if (data.mlsStatus) $('mlsStatus').textContent = data.mlsStatus;
+
+      // Hero photo
+      const heroEl = $('main-photo');
+      const ph = $('hero-ph');
+      if (data.photo && heroEl) {
+        heroEl.onload = () => { heroEl.style.display = 'block'; if (ph) ph.style.display = 'none'; };
+        heroEl.src = data.photo;
+      }
+
+      // Photo grid (if a CSV list is passed)
+      if (data.photos) {
+        const imgs = data.photos.split(/[|,]\s*/).slice(0, 4);
+        const grid = $('image-grid');
+        if (grid && imgs.length) {
+          grid.innerHTML = '';
+          imgs.forEach(src => {
+            const im = document.createElement('img');
+            im.className = 'grid-img';
+            im.loading = 'lazy';
+            im.src = src;
+            grid.appendChild(im);
+          });
+        }
+      }
+
+      // Street view / map
+      if (data.address) {
+        const q = encodeURIComponent([data.address, data.city, data.state, data.zip].filter(Boolean).join(', '));
+        $('street-view-button').href = `https://www.google.com/maps?q=&layer=c&cbll=${q}`;
+        $('property-map').src = `https://www.google.com/maps?q=${q}&output=embed`;
+        $('map-overlay').style.display = 'none';
+      }
+
+      // Mortgage calculator (basic)
+      const calc = () => {
+        const price = data.price || 0;
+        const down = 0.20;
+        const rate = 0.07;
+        const years = 30;
+        const loan = price * (1 - down);
+        const r = rate / 12;
+        const n = years * 12;
+        const pi = loan * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+        const taxes = (data.taxes || price * 0.022) / 12;
+        const ins = (price * 0.005) / 12;
+        const hoa = (data.hoa || 0);
+        const total = pi + taxes + ins + hoa;
+        $('monthly-payment-total').textContent = money(Math.round(total));
+        $('breakdown-principal').textContent = money(Math.round(pi));
+        $('breakdown-taxes').textContent = money(Math.round(taxes));
+        $('breakdown-insurance').textContent = money(Math.round(ins));
+        $('breakdown-hoa').textContent = money(Math.round(hoa));
+        $('display-home-price').textContent = money(price);
+
+        // Bar widths
+        if (total > 0) {
+          $('bar-principal').style.width = (pi / total * 100) + '%';
+          $('bar-taxes').style.width = (taxes / total * 100) + '%';
+          $('bar-insurance').style.width = (ins / total * 100) + '%';
+          $('bar-hoa').style.width = (hoa / total * 100) + '%';
+        }
+      };
+      if (data.price) calc();
+
+      // Animate sections in
+      const io = new IntersectionObserver(entries => {
+        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+      }, { threshold: 0.1 });
+      document.querySelectorAll('.section').forEach(s => io.observe(s));
+
+      // Dallas clock
+      const dt = $('dallas-datetime');
+      if (dt) {
+        const upd = () => {
+          const d = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'short', hour: 'numeric', minute: '2-digit' });
+          dt.textContent = d + ' · Dallas';
+        };
+        upd(); setInterval(upd, 30000);
+      }
+
+      // OG tags
+      const canon = document.querySelector('link[rel="canonical"]')?.href || location.href;
+      const title = [data.address, money(data.price)].filter(Boolean).join(' · ') || 'Midway Hollow Insider — Listing';
+      const heroSrc = heroEl?.src || '';
+      const setProp = (p, v) => { let m = document.querySelector(`meta[property="${p}"]`); if (!m) { m = document.createElement('meta'); m.setAttribute('property', p); document.head.appendChild(m); } if (v) m.setAttribute('content', v); };
+      setProp('og:title', title); setProp('og:url', canon); setProp('og:image', heroSrc);
+    });
+  </script>
+
+  <!-- Offer/tour flow seeder -->
+  <script src="/elr-offer-onefile.js" defer></script>
+</body>
+</html>

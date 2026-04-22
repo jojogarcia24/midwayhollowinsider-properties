@@ -1,0 +1,125 @@
+<!--
+  MIDWAY HOLLOW INSIDER — SEARCH WIDGET
+
+  How to use:
+  1. Paste the <div class="mls-search-card">...</div> block below into your main site
+     (MidwayHollowInsider.com) wherever you want the search bar to appear.
+     A good place is inside your existing search section on index.html.
+
+  2. Include the CSS (either paste search-widget.css contents into your style.css,
+     or load it with a <link> tag).
+
+  3. Include the behavior JS at the bottom of your page (before </body>):
+       <script src="/search-widget-behavior.js"></script>
+
+  4. Update the resultsPageUrl at the top of search-widget-behavior.js
+     to point at your property-detail Netlify site.
+
+  That's it — users fill out the search, click "Search Listings," and land on
+  your property-detail Netlify site with all their filters in the URL.
+-->
+
+<div class="mls-search-card" data-results-url="https://midwayhollowinsider-properties.netlify.app/">
+  <form id="mlsSearchForm" class="mls-search-form">
+    <div class="mls-top-row">
+      <label class="sr-only" for="mlsLocationInput">Location search</label>
+      <input id="mlsLocationInput" type="text" placeholder="City, ZIP, neighborhood, or MLS #" />
+      <button id="mlsVoiceSearchBtn" type="button" class="mls-icon-btn" aria-label="Voice search">🎙️</button>
+    </div>
+
+    <div class="mls-filter-grid">
+      <select id="mlsStatus">
+        <option value="">Status</option>
+        <option value="Active">Active</option>
+        <option value="Pending">Pending</option>
+        <option value="Sold">Sold</option>
+        <option value="Leased">Leased</option>
+      </select>
+      <select id="mlsType">
+        <option value="">Type</option>
+        <option value="Single Family">Single Family</option>
+        <option value="Condo">Condo</option>
+        <option value="Townhouse">Townhouse</option>
+        <option value="Multi-Family">Multi-Family</option>
+      </select>
+      <select id="mlsSubtype">
+        <option value="">Property Subtype</option>
+        <option value="Single Family Residence">Single Family Residence</option>
+        <option value="Condominium">Condominium</option>
+        <option value="Townhouse">Townhouse</option>
+        <option value="Mobile Home">Mobile Home</option>
+        <option value="Manufactured Home">Manufactured Home</option>
+        <option value="Farm/Ranch">Farm/Ranch</option>
+        <option value="Apartment">Apartment</option>
+        <option value="Resort Property">Resort Property</option>
+        <option value="Lake House">Lake House</option>
+        <option value="Log Cabin">Log Cabin</option>
+        <option value="Hi Rise">Hi Rise</option>
+        <option value="Vacation Home">Vacation Home</option>
+      </select>
+      <select id="mlsMinBeds">
+        <option value="">Beds</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+        <option value="5">5+</option>
+      </select>
+      <select id="mlsMinBaths">
+        <option value="">Baths</option>
+        <option value="1">1+</option>
+        <option value="2">2+</option>
+        <option value="3">3+</option>
+        <option value="4">4+</option>
+      </select>
+      <input id="mlsMinPrice" type="number" inputmode="numeric" placeholder="$ Min Price" />
+      <input id="mlsMaxPrice" type="number" inputmode="numeric" placeholder="$ Max Price" />
+    </div>
+
+    <div class="mls-meta-row">
+      <label for="mlsVendorSelect">Data Source</label>
+      <select id="mlsVendorSelect">
+        <option value="">Auto</option>
+        <option value="ntreis">NTREIS</option>
+        <option value="actris">ACTRIS</option>
+        <option value="sabor">SABOR</option>
+      </select>
+      <button id="mlsToggleAdvancedBtn" type="button" class="mls-link-btn">+ Advanced Filters</button>
+    </div>
+
+    <div id="mlsAdvancedFilters" class="mls-advanced-filters" hidden>
+      <input id="mlsGarageSpaces" type="number" inputmode="numeric" placeholder="Garage Spaces Min" />
+      <input id="mlsYearBuiltMin" type="number" inputmode="numeric" placeholder="Year Built Min" />
+      <input id="mlsYearBuiltMax" type="number" inputmode="numeric" placeholder="Year Built Max" />
+      <input id="mlsLotSizeMin" type="number" inputmode="numeric" placeholder="Lot Size Min (SqFt)" />
+      <input id="mlsLotSizeMax" type="number" inputmode="numeric" placeholder="Lot Size Max (SqFt)" />
+      <select id="mlsHasPool">
+        <option value="">Pool?</option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+      <select id="mlsIsGated">
+        <option value="">Gated?</option>
+        <option value="true">Yes</option>
+        <option value="false">No</option>
+      </select>
+      <input id="mlsSchoolName" type="text" placeholder="School Name" />
+      <select id="mlsOpenHouse">
+        <option value="">Open House?</option>
+        <option value="today">Today</option>
+        <option value="weekend">Weekend</option>
+      </select>
+    </div>
+
+    <div class="mls-actions">
+      <button id="mlsSearchBtn" type="submit" class="btn-fill">Search Listings</button>
+      <button id="mlsSaveBtn" type="button" class="btn-line">Copy Search Link</button>
+    </div>
+  </form>
+
+  <p class="mls-help-text">
+    Tip: This search routes to your property-detail site. Set destination URL in the
+    <code>data-results-url</code> attribute on the search card, or in
+    <code>window.MIDWAY_SEARCH_CONFIG.resultsPageUrl</code>.
+  </p>
+</div>
