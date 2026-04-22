@@ -803,6 +803,89 @@
       p.forEach((v, k) => { all[k] = v; all[k.toLowerCase()] = v; });
 
       const get = k => all[k] ?? all[k.toLowerCase()];
+      const safeDecode = value => {
+        let out = value == null ? '' : String(value);
+        for (let i = 0; i < 3; i++) {
+          try {
+            const next = decodeURIComponent(out);
+            if (next === out) break;
+            out = next;
+          } catch {
+            break;
+          }
+        }
+        return out;
+      };
+      const uniq = arr => [...new Set((arr || []).filter(Boolean))];
+      const isLikelyImageUrl = value => {
+        if (!value) return false;
+        const raw = String(value).trim();
+        const normalized = raw.startsWith('//') ? `https:${raw}` : raw;
+        if (!/^https?:\/\//i.test(normalized)) return false;
+        try {
+          const u = new URL(normalized);
+          if (!u.hostname) return false;
+          const pathname = u.pathname.toLowerCase();
+          if (/\.(avif|bmp|gif|heic|jpeg|jpg|png|tif|tiff|webp)$/.test(pathname)) return true;
+          if (/(photo|media|image|img)/i.test(pathname)) return true;
+          if (/(photo|media|image|img|url|src)=/i.test(u.search)) return true;
+          return true;
+        } catch {
+          return false;
+        }
+      };
+      const cleanUrlCandidate = value => {
+        if (value == null) return null;
+        let out = String(value).trim();
+        if (!out) return null;
+        out = out.replace(/^['"`\[]+|['"`\]]+$/g, '').replace(/\\\//g, '/').trim();
+        out = safeDecode(out).trim();
+        if (!out) return null;
+        const embedded = out.match(/https?:\/\/[^\s"'<>\\]+/i);
+        out = embedded ? embedded[0] : out;
+        if (out.startsWith('//')) out = `https:${out}`;
+        return out;
+      };
+      const collectMediaUrls = (value, out = [], seen = new WeakSet()) => {
+        if (value == null) return out;
+        if (typeof value === 'string') {
+          const raw = value.trim();
+          if (!raw) return out;
+          const decoded = safeDecode(raw);
+          const maybeJson = decoded.trim();
+          if ((maybeJson.startsWith('[') && maybeJson.endsWith(']')) || (maybeJson.startsWith('{') && maybeJson.endsWith('}'))) {
+            try { collectMediaUrls(JSON.parse(maybeJson), out, seen); } catch {}
+          }
+          if (/[|,\n]/.test(decoded)) {
+            decoded.split(/[|,\n]\s*/).forEach(part => collectMediaUrls(part, out, seen));
+          }
+          const cleaned = cleanUrlCandidate(decoded);
+          if (cleaned && isLikelyImageUrl(cleaned)) out.push(cleaned);
+          const urlMatches = decoded.match(/https?:\/\/[^\s"'<>\\]+/gi);
+          if (urlMatches) urlMatches.forEach(m => collectMediaUrls(m, out, seen));
+          return out;
+        }
+        if (Array.isArray(value)) {
+          value.forEach(v => collectMediaUrls(v, out, seen));
+          return out;
+        }
+        if (typeof value === 'object') {
+          if (seen.has(value)) return out;
+          seen.add(value);
+          Object.entries(value).forEach(([k, v]) => {
+            if (/(photo|media|image|url|src)/i.test(k)) {
+              collectMediaUrls(v, out, seen);
+            } else if (v && typeof v === 'object') {
+              collectMediaUrls(v, out, seen);
+            } else if (typeof v === 'string' && /(https?:\/\/|%3A%2F%2F|%2F%2F|\||,)/i.test(v)) {
+              collectMediaUrls(v, out, seen);
+            }
+          });
+        }
+        return out;
+      };
+      const mediaSeedValues = Object.keys(all).filter(k => /(photo|media|image)/i.test(k)).map(k => all[k]);
+      const parsedPhotos = uniq(collectMediaUrls(mediaSeedValues).map(cleanUrlCandidate).filter(isLikelyImageUrl));
       const num = (...keys) => {
         for (const k of keys) {
           let v = get(k); if (v == null || v === '') continue;
@@ -836,8 +919,8 @@
         garage: txt('GarageSpaces','ParkingTotal','parking','garage'),
         dom: num('DaysOnMarket','CumulativeDaysOnMarket','DOM','DaysOnElite'),
         mlsStatus: txt('MlsStatus','Status','status'),
-        photo: txt('PhotoUrl','PrimaryPhoto','photo','image','Media_MediaUrl'),
-        photos: txt('Photos','Media','images'),
+        photo: parsedPhotos[0] || txt('PhotoUrl','PrimaryPhoto','photo','image','Media_MediaUrl'),
+        photos: parsedPhotos,
         listingId: txt('ListingId','MlsId','listingId'),
         taxes: num('TaxAnnualAmount','annualTax'),
         hoa: num('AssociationFee','HOAFee','hoa')
@@ -867,25 +950,40 @@
       // Hero photo
       const heroEl = $('main-photo');
       const ph = $('hero-ph');
-      if (data.photo && heroEl) {
-        heroEl.onload = () => { heroEl.style.display = 'block'; if (ph) ph.style.display = 'none'; };
-        heroEl.src = data.photo;
+      const allPhotos = uniq([data.photo, ...(Array.isArray(data.photos) ? data.photos : [])].map(cleanUrlCandidate).filter(isLikelyImageUrl));
+      const galleryPhotos = allPhotos.slice(1);
+      if (heroEl && allPhotos.length) {
+        const setHeroPhoto = idx => {
+          if (!allPhotos[idx]) return;
+          heroEl.alt = `${data.address || 'Property'} photo ${idx + 1}`;
+          heroEl.onload = () => { heroEl.style.display = 'block'; if (ph) ph.style.display = 'none'; };
+          heroEl.onerror = () => {
+            const nextIdx = allPhotos.findIndex((src, i) => i > idx && src);
+            if (nextIdx > -1) {
+              setHeroPhoto(nextIdx);
+            } else if (ph) {
+              heroEl.style.display = 'none';
+              ph.style.display = 'block';
+            }
+          };
+          heroEl.src = allPhotos[idx];
+        };
+        setHeroPhoto(0);
       }
 
-      // Photo grid (if a CSV list is passed)
-      if (data.photos) {
-        const imgs = data.photos.split(/[|,]\s*/).slice(0, 4);
-        const grid = $('image-grid');
-        if (grid && imgs.length) {
-          grid.innerHTML = '';
-          imgs.forEach(src => {
-            const im = document.createElement('img');
-            im.className = 'grid-img';
-            im.loading = 'lazy';
-            im.src = src;
-            grid.appendChild(im);
-          });
-        }
+      // Photo grid
+      const grid = $('image-grid');
+      if (grid && galleryPhotos.length) {
+        grid.innerHTML = '';
+        galleryPhotos.slice(0, 4).forEach((src, i) => {
+          const im = document.createElement('img');
+          im.className = 'grid-img';
+          im.loading = 'lazy';
+          im.decoding = 'async';
+          im.alt = `${data.address || 'Property'} gallery photo ${i + 2}`;
+          im.src = src;
+          grid.appendChild(im);
+        });
       }
 
       // Street view / map
