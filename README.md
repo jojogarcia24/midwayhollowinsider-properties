@@ -108,6 +108,22 @@ Fallback names are also supported by the function:
 
 After setting variables, trigger a redeploy so the function can authenticate.
 
+### 6. Configure Netlify webhook environment variable for lead forwarding
+
+This project includes a Netlify Function at `netlify/functions/lead.js` that
+forwards tour and offer form submissions to your GoHighLevel webhook endpoint.
+
+In Netlify (for your property-detail site), set:
+
+- `GHL_WEBHOOK_URL`
+
+Fallback name also supported:
+
+- `HIGHLEVEL_WEBHOOK_URL`
+
+After setting this value, redeploy so `/api/lead` can forward leads
+server-side without exposing webhook URLs in browser code.
+
 ## How the data flows
 
 ```
