@@ -790,7 +790,7 @@
     window.__LISTING__ = listingData;
     const VENDOR = __qp.get('vendor') || 'ntreis';
 
-    document.addEventListener('DOMContentLoaded', () => {
+    document.addEventListener('DOMContentLoaded', async () => {
       try {
         // Canonical
         const keep = new Set(['ListingId']);
@@ -802,6 +802,15 @@
         const all = {};
         Object.entries(listingData).forEach(([k, v]) => { all[k] = v; all[k.toLowerCase()] = v; });
         p.forEach((v, k) => { all[k] = v; all[k.toLowerCase()] = v; });
+        const mergeIntoAll = (source, override = true) => {
+          if (!source || typeof source !== 'object') return;
+          Object.entries(source).forEach(([k, v]) => {
+            if (v == null || v === '') return;
+            const lower = String(k).toLowerCase();
+            if (override || all[k] == null || all[k] === '') all[k] = v;
+            if (override || all[lower] == null || all[lower] === '') all[lower] = v;
+          });
+        };
 
         const get = k => all[k] ?? all[k.toLowerCase()];
         const safeDecode = value => {
@@ -846,6 +855,128 @@
           out = embedded ? embedded[0] : out;
           if (out.startsWith('//')) out = `https:${out}`;
           return out;
+        };
+        const normalizeId = value => String(value ?? '').replace(/[^a-z0-9]/gi, '').toLowerCase();
+        const parseNumber = value => {
+          if (value == null || value === '') return null;
+          const n = Number(value);
+          return Number.isFinite(n) ? n : null;
+        };
+        const parseBaths = property => {
+          if (!property || typeof property !== 'object') return null;
+          if (property.baths != null && property.baths !== '') return property.baths;
+          if (property.bathsFull != null || property.bathsHalf != null) {
+            const full = parseNumber(property.bathsFull) || 0;
+            const half = parseNumber(property.bathsHalf) || 0;
+            const total = full + (half * 0.5);
+            return total || null;
+          }
+          return null;
+        };
+        const mapSimplyRetsListing = listing => {
+          if (!listing || typeof listing !== 'object') return {};
+          const address = listing.address || {};
+          const property = listing.property || {};
+          const geo = listing.geo || {};
+          const tax = property.tax || {};
+          const association = property.association || {};
+          const schools = property.school || {};
+          const listOffice = listing.office || listing.listOffice || {};
+          const listAgent = listing.agent || listing.listAgent || {};
+          const photos = Array.isArray(listing.photos) ? listing.photos.filter(Boolean) : [];
+          const fullStreet = address.full || [address.streetNumber, address.streetName, address.streetSuffix].filter(Boolean).join(' ').trim();
+          return {
+            ListingId: listing.listingId || listing.mlsId,
+            MlsId: listing.mlsId || listing.listingId,
+            Status: listing.status,
+            MlsStatus: listing.mls?.status || listing.status,
+            ListPrice: listing.listPrice,
+            PublicRemarks: listing.remarks,
+            UnparsedAddress: fullStreet || null,
+            City: address.city,
+            StateOrProvince: address.state,
+            PostalCode: address.zip,
+            CountyOrParish: address.county,
+            Latitude: geo.lat,
+            Longitude: geo.lng,
+            PropertyType: property.type,
+            PropertySubType: property.subType,
+            YearBuilt: property.yearBuilt,
+            BedroomsTotal: property.bedrooms,
+            BathroomsTotalInteger: parseBaths(property),
+            BathroomsFull: property.bathsFull,
+            LivingArea: property.area,
+            BuildingAreaTotal: property.area,
+            LotSizeSquareFeet: property.lotSize,
+            LotSizeAcres: property.lotSizeAcres,
+            GarageSpaces: property.garageSpaces,
+            ParkingTotal: property.garageSpaces,
+            ParkingFeatures: property.parking || property.parkingFeatures,
+            InteriorFeatures: property.interiorFeatures,
+            ExteriorFeatures: property.exteriorFeatures,
+            Flooring: property.flooring,
+            FireplaceFeatures: property.fireplaceFeatures || property.fireplace,
+            PoolFeatures: property.poolFeatures || property.pool,
+            Roof: property.roof,
+            ConstructionMaterials: property.construction || property.constructionMaterials,
+            Utilities: property.utilities,
+            Cooling: property.cooling,
+            Heating: property.heating,
+            WaterSource: property.water || property.waterSource,
+            Sewer: property.sewer,
+            StoriesTotal: property.stories || property.storiesTotal,
+            ArchitecturalStyle: property.style,
+            SubdivisionName: property.subdivision || property.subdivisionName,
+            ElementarySchool: schools.elementarySchool || property.elementarySchool,
+            MiddleSchool: schools.middleSchool || property.middleSchool,
+            HighSchool: schools.highSchool || property.highSchool,
+            SchoolDistrict: schools.district || property.schoolDistrict,
+            ZoningDescription: property.zoning || property.zoningDescription,
+            DaysOnMarket: listing.mls?.daysOnMarket || listing.daysOnMarket,
+            TaxAnnualAmount: tax.taxAnnualAmount || tax.annualAmount,
+            AssociationFee: association.fee || property.associationFee,
+            ListOfficeName: listOffice.name,
+            ListAgentFullName: listAgent.fullName || listAgent.name,
+            PhotoUrl: photos[0] || null,
+            Photos: photos.join('|'),
+            photos
+          };
+        };
+        const fetchListingFromSimplyRets = async (listingId, vendor) => {
+          if (!listingId) return null;
+          const config = window.MIDWAY_LISTING_API || window.SIMPLYRETS_CONFIG || {};
+          const directUrl = config.propertiesUrl || config.endpoint || config.url;
+          const baseUrl = (config.baseUrl || 'https://api.simplyrets.com').replace(/\/+$/, '');
+          const endpoint = directUrl || `${baseUrl}/properties`;
+          const username = config.username || config.user || __qp.get('simplyretsUser') || __qp.get('simplyrets_user');
+          const password = config.password || config.pass || __qp.get('simplyretsPassword') || __qp.get('simplyrets_pass');
+          const authHeader = username && password ? `Basic ${btoa(`${username}:${password}`)}` : null;
+          const queryVariants = [
+            { q: String(listingId).trim(), vendor: vendor || undefined, limit: '200' },
+            { q: String(listingId).trim(), mls: vendor || undefined, limit: '200' },
+            { q: String(listingId).trim(), limit: '200' }
+          ];
+          const candidates = [];
+          for (const variant of queryVariants) {
+            const req = new URL(endpoint, location.href);
+            Object.entries(variant).forEach(([k, v]) => { if (v != null && v !== '') req.searchParams.set(k, v); });
+            try {
+              const res = await fetch(req.toString(), {
+                headers: {
+                  Accept: 'application/json',
+                  ...(authHeader ? { Authorization: authHeader } : {})
+                }
+              });
+              if (!res.ok) continue;
+              const payload = await res.json();
+              const records = Array.isArray(payload) ? payload : (Array.isArray(payload?.results) ? payload.results : []);
+              if (!records.length) continue;
+              candidates.push(...records);
+              const exact = records.find(item => [item?.listingId, item?.mlsId].some(id => normalizeId(id) === normalizeId(listingId)));
+              if (exact) return exact;
+            } catch {}
+          }
+          return candidates.find(item => [item?.listingId, item?.mlsId].some(id => normalizeId(id) === normalizeId(listingId))) || null;
         };
         const collectMediaUrls = (value, out = [], seen = new WeakSet()) => {
           if (value == null) return out;
@@ -893,7 +1024,24 @@
           }
           return out;
         };
-        const mediaSeedValues = Object.keys(all).filter(k => /(photo|media|image)/i.test(k)).map(k => all[k]);
+        const requestedListingId = get('ListingId') || get('MlsId') || get('listingId');
+        const requestedVendor = get('vendor') || VENDOR;
+        let apiListing = null;
+        if (requestedListingId) {
+          apiListing = await fetchListingFromSimplyRets(requestedListingId, requestedVendor);
+          if (apiListing) {
+            const mapped = mapSimplyRetsListing(apiListing);
+            mergeIntoAll(mapped, true);
+            listingData = { ...listingData, ...mapped };
+            window.__LISTING__ = listingData;
+            try { sessionStorage.setItem(`listing:${requestedListingId}`, JSON.stringify(listingData)); } catch {}
+          }
+        }
+        const apiPhotos = Array.isArray(apiListing?.photos) ? apiListing.photos : [];
+        const mediaSeedValues = [
+          ...(apiPhotos.length ? [apiPhotos] : []),
+          ...Object.keys(all).filter(k => /(photo|media|image)/i.test(k)).map(k => all[k])
+        ];
         const parsedPhotos = uniq(collectMediaUrls(mediaSeedValues).map(cleanUrlCandidate).filter(isLikelyImageUrl));
         const num = (...keys) => {
           for (const k of keys) {
@@ -908,6 +1056,51 @@
             const v = get(k); if (v && String(v).trim() !== '') return String(v).trim();
           }
           return null;
+        };
+        const raw = (...keys) => {
+          for (const k of keys) {
+            const v = get(k);
+            if (v == null) continue;
+            if (typeof v === 'string' && v.trim() === '') continue;
+            return v;
+          }
+          return null;
+        };
+        const formatForList = value => {
+          if (value == null) return null;
+          if (typeof value === 'boolean') return value ? 'Yes' : 'No';
+          if (Array.isArray(value)) {
+            const joined = value.map(formatForList).filter(Boolean).join(', ');
+            return joined || null;
+          }
+          if (typeof value === 'object') {
+            const joined = Object.values(value).map(formatForList).filter(Boolean).join(', ');
+            return joined || null;
+          }
+          const str = String(value).trim();
+          return str || null;
+        };
+        const detailLine = (label, value, formatter = formatForList) => {
+          const formatted = formatter(value);
+          if (!formatted) return null;
+          return label ? `${label}: ${formatted}` : formatted;
+        };
+        const setList = (id, items) => {
+          const list = $(id);
+          if (!list) return;
+          const cleanItems = uniq((items || []).map(item => String(item || '').trim()).filter(Boolean));
+          list.innerHTML = '';
+          if (!cleanItems.length) {
+            const li = document.createElement('li');
+            li.textContent = '—';
+            list.appendChild(li);
+            return;
+          }
+          cleanItems.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            list.appendChild(li);
+          });
         };
         const $ = id => document.getElementById(id);
         const money = v => v == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
@@ -928,12 +1121,86 @@
           garage: txt('GarageSpaces','ParkingTotal','parking','garage'),
           dom: num('DaysOnMarket','CumulativeDaysOnMarket','DOM','DaysOnElite'),
           mlsStatus: txt('MlsStatus','Status','status'),
-          photo: parsedPhotos[0] || txt('PhotoUrl','PrimaryPhoto','photo','image','Media_MediaUrl'),
+          photo: cleanUrlCandidate(apiPhotos[0]) || parsedPhotos[0] || txt('PhotoUrl','PrimaryPhoto','photo','image','Media_MediaUrl'),
           photos: parsedPhotos,
           listingId: txt('ListingId','MlsId','listingId'),
           taxes: num('TaxAnnualAmount','annualTax'),
-          hoa: num('AssociationFee','HOAFee','hoa')
+          hoa: num('AssociationFee','HOAFee','hoa'),
+          lat: num('Latitude','latitude','lat'),
+          lng: num('Longitude','longitude','lng','lon')
         };
+
+        const parkingDetails = [
+          detailLine('Garage Spaces', data.garage),
+          detailLine('Parking Features', raw('ParkingFeatures','parkingFeatures')),
+          detailLine('Carport Spaces', raw('CarportSpaces','carportSpaces')),
+          detailLine('Parking Total', raw('ParkingTotal','parkingTotal'))
+        ];
+        const interiorDetails = [
+          detailLine('Bedrooms', data.beds),
+          detailLine('Bathrooms', data.baths),
+          detailLine('Living Area', data.sqft, value => {
+            const n = Number(String(value).replace(/[, ]/g, ''));
+            return Number.isFinite(n) ? `${n.toLocaleString()} sqft` : formatForList(value);
+          }),
+          detailLine('Interior Features', raw('InteriorFeatures','interiorFeatures')),
+          detailLine('Flooring', raw('Flooring','flooring')),
+          detailLine('Fireplace', raw('FireplaceFeatures','fireplaceFeatures')),
+          detailLine('Stories', raw('StoriesTotal','storiesTotal'))
+        ];
+        const exteriorDetails = [
+          detailLine('Lot Size', data.lot),
+          detailLine('Exterior Features', raw('ExteriorFeatures','exteriorFeatures')),
+          detailLine('Pool Features', raw('PoolFeatures','poolFeatures')),
+          detailLine('Roof', raw('Roof','roof')),
+          detailLine('Construction', raw('ConstructionMaterials','constructionMaterials'))
+        ];
+        const financialDetails = [
+          detailLine('List Price', data.price, value => money(Number(String(value).replace(/[, ]/g, '')))),
+          detailLine('Tax Annual Amount', data.taxes, value => money(Number(String(value).replace(/[, ]/g, '')))),
+          detailLine('Association Fee', data.hoa, value => money(Number(String(value).replace(/[, ]/g, '')))),
+          detailLine('Price / Sq.Ft.', (data.price && data.sqft) ? Math.round(data.price / data.sqft) : null, value => money(value))
+        ];
+        const utilitiesDetails = [
+          detailLine('Utilities', raw('Utilities','utilities')),
+          detailLine('Cooling', raw('Cooling','cooling')),
+          detailLine('Heating', raw('Heating','heating')),
+          detailLine('Water Source', raw('WaterSource','waterSource')),
+          detailLine('Sewer', raw('Sewer','sewer'))
+        ];
+        const locationDetails = [
+          detailLine('Subdivision', raw('SubdivisionName','subdivisionName')),
+          detailLine('County', raw('CountyOrParish','county')),
+          detailLine('School District', raw('SchoolDistrict','schoolDistrict')),
+          detailLine('Elementary School', raw('ElementarySchool','elementarySchool')),
+          detailLine('Middle School', raw('MiddleSchool','middleSchool')),
+          detailLine('High School', raw('HighSchool','highSchool')),
+          detailLine('Coordinates', (data.lat != null && data.lng != null) ? `${data.lat}, ${data.lng}` : null)
+        ];
+        const otherDetails = [
+          detailLine('MLS ID', raw('MlsId','mlsId')),
+          detailLine('Listing ID', data.listingId),
+          detailLine('Property Type', data.type),
+          detailLine('Year Built', data.year),
+          detailLine('Architectural Style', raw('ArchitecturalStyle','architecturalStyle')),
+          detailLine('Zoning', raw('ZoningDescription','zoningDescription')),
+          detailLine('Days on Market', data.dom)
+        ];
+        const publicDetails = [
+          detailLine('MLS Status', data.mlsStatus),
+          detailLine('Listing Agent', raw('ListAgentFullName','listAgentFullName')),
+          detailLine('Listing Office', raw('ListOfficeName','listOfficeName')),
+          detailLine('Public Remarks', data.remarks),
+          detailLine('Virtual Tour', raw('VirtualTourURL','virtualTourUrl'))
+        ];
+        setList('parking-list', parkingDetails);
+        setList('interior-list', interiorDetails);
+        setList('exterior-list', exteriorDetails);
+        setList('financial-list', financialDetails);
+        setList('utilities-list', utilitiesDetails);
+        setList('location-list', locationDetails);
+        setList('other-list', otherDetails);
+        setList('public-list', publicDetails);
 
         // Price + address
         if (data.price) $('property-price').textContent = money(data.price);
@@ -996,7 +1263,12 @@
         }
 
         // Street view / map
-        if (data.address) {
+        if (data.lat != null && data.lng != null) {
+          const ll = `${data.lat},${data.lng}`;
+          $('street-view-button').href = `https://www.google.com/maps?q=&layer=c&cbll=${encodeURIComponent(ll)}`;
+          $('property-map').src = `https://www.google.com/maps?q=${encodeURIComponent(ll)}&z=17&output=embed`;
+          $('map-overlay').style.display = 'none';
+        } else if (data.address) {
           const q = encodeURIComponent([data.address, data.city, data.state, data.zip].filter(Boolean).join(', '));
           $('street-view-button').href = `https://www.google.com/maps?q=&layer=c&cbll=${q}`;
           $('property-map').src = `https://www.google.com/maps?q=${q}&output=embed`;
