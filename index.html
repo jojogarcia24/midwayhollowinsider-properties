@@ -1254,6 +1254,107 @@
           lat: num('Latitude','latitude','lat'),
           lng: num('Longitude','longitude','lng','lon')
         };
+        const setNearbyList = (id, items) => {
+          const list = $(id);
+          if (!list) return;
+          const cleanItems = uniq((items || []).map(item => String(item || '').trim()).filter(Boolean));
+          list.innerHTML = '';
+          if (!cleanItems.length) {
+            const li = document.createElement('li');
+            li.textContent = '—';
+            list.appendChild(li);
+            return;
+          }
+          cleanItems.forEach(item => {
+            const li = document.createElement('li');
+            li.textContent = item;
+            list.appendChild(li);
+          });
+        };
+        const haversineMiles = (lat1, lng1, lat2, lng2) => {
+          const toRad = deg => deg * (Math.PI / 180);
+          const dLat = toRad(lat2 - lat1);
+          const dLng = toRad(lng2 - lng1);
+          const a = Math.sin(dLat / 2) ** 2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) ** 2;
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          return 3958.7613 * c;
+        };
+        const formatDistanceLabel = miles => {
+          if (!Number.isFinite(miles)) return null;
+          if (miles < 0.1) return '<0.1 mi';
+          return `${miles < 1 ? miles.toFixed(2) : miles.toFixed(1)} mi`;
+        };
+        const buildNearbyItems = (elements, lat, lng, limit = 6) => {
+          if (!Array.isArray(elements)) return [];
+          const seen = new Set();
+          const ranked = [];
+          elements.forEach(item => {
+            const tags = item?.tags || {};
+            const name = String(tags.name || tags.brand || tags.operator || '').trim();
+            const ptLat = Number(item?.lat ?? item?.center?.lat);
+            const ptLng = Number(item?.lon ?? item?.center?.lon);
+            if (!name || !Number.isFinite(ptLat) || !Number.isFinite(ptLng)) return;
+            const key = name.toLowerCase();
+            if (seen.has(key)) return;
+            seen.add(key);
+            const distanceMiles = haversineMiles(lat, lng, ptLat, ptLng);
+            ranked.push({ name, distanceMiles });
+          });
+          return ranked
+            .sort((a, b) => a.distanceMiles - b.distanceMiles)
+            .slice(0, limit)
+            .map(item => `${item.name} · ${formatDistanceLabel(item.distanceMiles)}`);
+        };
+        const fetchOverpassElements = async query => {
+          const endpoint = 'https://overpass-api.de/api/interpreter';
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Content-Type': 'text/plain;charset=UTF-8' },
+            body: query
+          });
+          if (!res.ok) throw new Error(`Overpass request failed: ${res.status}`);
+          const payload = await res.json();
+          return Array.isArray(payload?.elements) ? payload.elements : [];
+        };
+        const populateNearbyFromCoords = async (lat, lng) => {
+          if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+            setNearbyList('nearby-schools', []);
+            setNearbyList('nearby-dining', []);
+            return;
+          }
+          const schoolQuery = `
+[out:json][timeout:25];
+(
+  node["amenity"="school"](around:6000,${lat},${lng});
+  way["amenity"="school"](around:6000,${lat},${lng});
+  relation["amenity"="school"](around:6000,${lat},${lng});
+);
+out center tags;
+`;
+          const diningQuery = `
+[out:json][timeout:25];
+(
+  node["amenity"~"restaurant|cafe|fast_food|bar|pub|ice_cream"](around:3500,${lat},${lng});
+  way["amenity"~"restaurant|cafe|fast_food|bar|pub|ice_cream"](around:3500,${lat},${lng});
+  relation["amenity"~"restaurant|cafe|fast_food|bar|pub|ice_cream"](around:3500,${lat},${lng});
+  node["shop"](around:3500,${lat},${lng});
+  way["shop"](around:3500,${lat},${lng});
+  relation["shop"](around:3500,${lat},${lng});
+);
+out center tags;
+`;
+          try {
+            const [schoolElements, diningElements] = await Promise.all([
+              fetchOverpassElements(schoolQuery),
+              fetchOverpassElements(diningQuery)
+            ]);
+            setNearbyList('nearby-schools', buildNearbyItems(schoolElements, lat, lng, 5));
+            setNearbyList('nearby-dining', buildNearbyItems(diningElements, lat, lng, 6));
+          } catch {
+            setNearbyList('nearby-schools', []);
+            setNearbyList('nearby-dining', []);
+          }
+        };
 
         const parkingDetails = [
           detailLine('Garage Spaces', data.garage),
@@ -1399,6 +1500,7 @@
           $('property-map').src = `https://www.google.com/maps?q=${q}&output=embed`;
           $('map-overlay').style.display = 'none';
         }
+        await populateNearbyFromCoords(data.lat, data.lng);
 
         // Mortgage calculator (basic)
         const calc = () => {
