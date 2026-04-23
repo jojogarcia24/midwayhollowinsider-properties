@@ -944,39 +944,20 @@
         };
         const fetchListingFromSimplyRets = async (listingId, vendor) => {
           if (!listingId) return null;
-          const config = window.MIDWAY_LISTING_API || window.SIMPLYRETS_CONFIG || {};
-          const directUrl = config.propertiesUrl || config.endpoint || config.url;
-          const baseUrl = (config.baseUrl || 'https://api.simplyrets.com').replace(/\/+$/, '');
-          const endpoint = directUrl || `${baseUrl}/properties`;
-          const username = config.username || config.user || __qp.get('simplyretsUser') || __qp.get('simplyrets_user');
-          const password = config.password || config.pass || __qp.get('simplyretsPassword') || __qp.get('simplyrets_pass');
-          const authHeader = username && password ? `Basic ${btoa(`${username}:${password}`)}` : null;
-          const queryVariants = [
-            { q: String(listingId).trim(), vendor: vendor || undefined, limit: '200' },
-            { q: String(listingId).trim(), mls: vendor || undefined, limit: '200' },
-            { q: String(listingId).trim(), limit: '200' }
-          ];
-          const candidates = [];
-          for (const variant of queryVariants) {
-            const req = new URL(endpoint, location.href);
-            Object.entries(variant).forEach(([k, v]) => { if (v != null && v !== '') req.searchParams.set(k, v); });
-            try {
-              const res = await fetch(req.toString(), {
-                headers: {
-                  Accept: 'application/json',
-                  ...(authHeader ? { Authorization: authHeader } : {})
-                }
-              });
-              if (!res.ok) continue;
-              const payload = await res.json();
-              const records = Array.isArray(payload) ? payload : (Array.isArray(payload?.results) ? payload.results : []);
-              if (!records.length) continue;
-              candidates.push(...records);
-              const exact = records.find(item => [item?.listingId, item?.mlsId].some(id => normalizeId(id) === normalizeId(listingId)));
-              if (exact) return exact;
-            } catch {}
+          try {
+            const req = new URL('/api/listing', location.origin);
+            req.searchParams.set('listingId', String(listingId).trim());
+            if (vendor) req.searchParams.set('vendor', String(vendor).trim());
+            const res = await fetch(req.toString(), { headers: { Accept: 'application/json' } });
+            if (!res.ok) return null;
+            const payload = await res.json();
+            const listing = payload?.listing && typeof payload.listing === 'object' ? payload.listing : payload;
+            if (!listing || typeof listing !== 'object') return null;
+            const hasExactMatch = [listing.listingId, listing.mlsId].some(id => normalizeId(id) === normalizeId(listingId));
+            return hasExactMatch ? listing : null;
+          } catch {
+            return null;
           }
-          return candidates.find(item => [item?.listingId, item?.mlsId].some(id => normalizeId(id) === normalizeId(listingId))) || null;
         };
         const collectMediaUrls = (value, out = [], seen = new WeakSet()) => {
           if (value == null) return out;
