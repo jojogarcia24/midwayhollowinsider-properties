@@ -791,262 +791,275 @@
     const VENDOR = __qp.get('vendor') || 'ntreis';
 
     document.addEventListener('DOMContentLoaded', () => {
-      // Canonical
-      const keep = new Set(['ListingId']);
-      const url = new URL(location.href);
-      [...url.searchParams.keys()].forEach(k => { if (!keep.has(k)) url.searchParams.delete(k); });
-      document.getElementById('canon').href = url.origin + url.pathname + (url.searchParams.toString() ? '?' + url.searchParams : '');
+      try {
+        // Canonical
+        const keep = new Set(['ListingId']);
+        const url = new URL(location.href);
+        [...url.searchParams.keys()].forEach(k => { if (!keep.has(k)) url.searchParams.delete(k); });
+        document.getElementById('canon').href = url.origin + url.pathname + (url.searchParams.toString() ? '?' + url.searchParams : '');
 
-      const p = new URLSearchParams(location.search);
-      const all = {};
-      Object.entries(listingData).forEach(([k, v]) => { all[k] = v; all[k.toLowerCase()] = v; });
-      p.forEach((v, k) => { all[k] = v; all[k.toLowerCase()] = v; });
+        const p = new URLSearchParams(location.search);
+        const all = {};
+        Object.entries(listingData).forEach(([k, v]) => { all[k] = v; all[k.toLowerCase()] = v; });
+        p.forEach((v, k) => { all[k] = v; all[k.toLowerCase()] = v; });
 
-      const get = k => all[k] ?? all[k.toLowerCase()];
-      const safeDecode = value => {
-        let out = value == null ? '' : String(value);
-        for (let i = 0; i < 3; i++) {
-          try {
-            const next = decodeURIComponent(out);
-            if (next === out) break;
-            out = next;
-          } catch {
-            break;
-          }
-        }
-        return out;
-      };
-      const uniq = arr => [...new Set((arr || []).filter(Boolean))];
-      const isLikelyImageUrl = value => {
-        if (!value) return false;
-        const raw = String(value).trim();
-        const normalized = raw.startsWith('//') ? `https:${raw}` : raw;
-        if (!/^https?:\/\//i.test(normalized)) return false;
-        try {
-          const u = new URL(normalized);
-          if (!u.hostname) return false;
-          const pathname = u.pathname.toLowerCase();
-          if (/\.(avif|bmp|gif|heic|jpeg|jpg|png|tif|tiff|webp)$/.test(pathname)) return true;
-          if (/(photo|media|image|img)/i.test(pathname)) return true;
-          if (/(photo|media|image|img|url|src)=/i.test(u.search)) return true;
-          return true;
-        } catch {
-          return false;
-        }
-      };
-      const cleanUrlCandidate = value => {
-        if (value == null) return null;
-        let out = String(value).trim();
-        if (!out) return null;
-        out = out.replace(/^['"`\[]+|['"`\]]+$/g, '').replace(/\\\//g, '/').trim();
-        out = safeDecode(out).trim();
-        if (!out) return null;
-        const embedded = out.match(/https?:\/\/[^\s"'<>\\]+/i);
-        out = embedded ? embedded[0] : out;
-        if (out.startsWith('//')) out = `https:${out}`;
-        return out;
-      };
-      const collectMediaUrls = (value, out = [], seen = new WeakSet()) => {
-        if (value == null) return out;
-        if (typeof value === 'string') {
-          const raw = value.trim();
-          if (!raw) return out;
-          const decoded = safeDecode(raw);
-          const maybeJson = decoded.trim();
-          if ((maybeJson.startsWith('[') && maybeJson.endsWith(']')) || (maybeJson.startsWith('{') && maybeJson.endsWith('}'))) {
-            try { collectMediaUrls(JSON.parse(maybeJson), out, seen); } catch {}
-          }
-          if (/[|,\n]/.test(decoded)) {
-            decoded.split(/[|,\n]\s*/).forEach(part => collectMediaUrls(part, out, seen));
-          }
-          const cleaned = cleanUrlCandidate(decoded);
-          if (cleaned && isLikelyImageUrl(cleaned)) out.push(cleaned);
-          const urlMatches = decoded.match(/https?:\/\/[^\s"'<>\\]+/gi);
-          if (urlMatches) urlMatches.forEach(m => collectMediaUrls(m, out, seen));
-          return out;
-        }
-        if (Array.isArray(value)) {
-          value.forEach(v => collectMediaUrls(v, out, seen));
-          return out;
-        }
-        if (typeof value === 'object') {
-          if (seen.has(value)) return out;
-          seen.add(value);
-          Object.entries(value).forEach(([k, v]) => {
-            if (/(photo|media|image|url|src)/i.test(k)) {
-              collectMediaUrls(v, out, seen);
-            } else if (v && typeof v === 'object') {
-              collectMediaUrls(v, out, seen);
-            } else if (typeof v === 'string' && /(https?:\/\/|%3A%2F%2F|%2F%2F|\||,)/i.test(v)) {
-              collectMediaUrls(v, out, seen);
+        const get = k => all[k] ?? all[k.toLowerCase()];
+        const safeDecode = value => {
+          let out = value == null ? '' : String(value);
+          for (let i = 0; i < 3; i++) {
+            try {
+              const next = decodeURIComponent(out);
+              if (next === out) break;
+              out = next;
+            } catch {
+              break;
             }
+          }
+          return out;
+        };
+        const uniq = arr => [...new Set((arr || []).filter(Boolean))];
+        const isLikelyImageUrl = value => {
+          if (!value) return false;
+          const raw = String(value).trim();
+          const normalized = raw.startsWith('//') ? `https:${raw}` : raw;
+          if (!/^https?:\/\//i.test(normalized)) return false;
+          try {
+            const u = new URL(normalized);
+            if (!u.hostname) return false;
+            const pathname = u.pathname.toLowerCase();
+            if (/\.(avif|bmp|gif|heic|jpeg|jpg|png|tif|tiff|webp)$/.test(pathname)) return true;
+            if (/(photo|media|image|img)/i.test(pathname)) return true;
+            if (/(photo|media|image|img|url|src)=/i.test(u.search)) return true;
+            return true;
+          } catch {
+            return false;
+          }
+        };
+        const cleanUrlCandidate = value => {
+          if (value == null) return null;
+          let out = String(value).trim();
+          if (!out) return null;
+          out = out.replace(/^['"`\[]+|['"`\]]+$/g, '').replace(/\\\//g, '/').trim();
+          out = safeDecode(out).trim();
+          if (!out) return null;
+          const embedded = out.match(/https?:\/\/[^\s"'<>\\|,]+/i);
+          out = embedded ? embedded[0] : out;
+          if (out.startsWith('//')) out = `https:${out}`;
+          return out;
+        };
+        const collectMediaUrls = (value, out = [], seen = new WeakSet()) => {
+          if (value == null) return out;
+          if (typeof value === 'string') {
+            const raw = value.trim();
+            if (!raw) return out;
+            const decoded = safeDecode(raw);
+            const maybeJson = decoded.trim();
+            if ((maybeJson.startsWith('[') && maybeJson.endsWith(']')) || (maybeJson.startsWith('{') && maybeJson.endsWith('}'))) {
+              try { collectMediaUrls(JSON.parse(maybeJson), out, seen); } catch {}
+            }
+            const hasDelimiters = /[|,\n]/.test(decoded);
+            if (hasDelimiters) {
+              decoded.split(/[|,\n]\s*/).forEach(part => collectMediaUrls(part, out, seen));
+            }
+            if (!hasDelimiters) {
+              const cleaned = cleanUrlCandidate(decoded);
+              if (cleaned && isLikelyImageUrl(cleaned)) out.push(cleaned);
+              const urlMatches = decoded.match(/https?:\/\/[^\s"'<>\\|,]+/gi);
+              if (urlMatches) {
+                urlMatches.forEach(m => {
+                  const cleanedMatch = cleanUrlCandidate(m);
+                  if (cleanedMatch && isLikelyImageUrl(cleanedMatch)) out.push(cleanedMatch);
+                });
+              }
+            }
+            return out;
+          }
+          if (Array.isArray(value)) {
+            value.forEach(v => collectMediaUrls(v, out, seen));
+            return out;
+          }
+          if (typeof value === 'object') {
+            if (seen.has(value)) return out;
+            seen.add(value);
+            Object.entries(value).forEach(([k, v]) => {
+              if (/(photo|media|image|url|src)/i.test(k)) {
+                collectMediaUrls(v, out, seen);
+              } else if (v && typeof v === 'object') {
+                collectMediaUrls(v, out, seen);
+              } else if (typeof v === 'string' && /(https?:\/\/|%3A%2F%2F|%2F%2F|\||,)/i.test(v)) {
+                collectMediaUrls(v, out, seen);
+              }
+            });
+          }
+          return out;
+        };
+        const mediaSeedValues = Object.keys(all).filter(k => /(photo|media|image)/i.test(k)).map(k => all[k]);
+        const parsedPhotos = uniq(collectMediaUrls(mediaSeedValues).map(cleanUrlCandidate).filter(isLikelyImageUrl));
+        const num = (...keys) => {
+          for (const k of keys) {
+            let v = get(k); if (v == null || v === '') continue;
+            v = ('' + v).replace(/[, ]/g, '');
+            const n = Number(v); if (!Number.isNaN(n)) return n;
+          }
+          return null;
+        };
+        const txt = (...keys) => {
+          for (const k of keys) {
+            const v = get(k); if (v && String(v).trim() !== '') return String(v).trim();
+          }
+          return null;
+        };
+        const $ = id => document.getElementById(id);
+        const money = v => v == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
+
+        const data = {
+          price: num('ListPrice','price','list_price','Price'),
+          remarks: txt('PublicRemarks','remarks','description','propertyRemarks'),
+          address: txt('UnparsedAddress','address','streetAddress'),
+          city: txt('City','city'),
+          state: txt('StateOrProvince','state'),
+          zip: txt('PostalCode','zip','zipcode'),
+          type: txt('PropertySubType','PropertyType','propertyType','type') || 'Residential',
+          year: txt('YearBuilt','yearBuilt'),
+          beds: txt('BedroomsTotal','Bedrooms','beds','bedrooms'),
+          baths: txt('BathroomsTotalInteger','BathroomsFull','BathroomsTotal','baths','bathrooms'),
+          sqft: num('LivingArea','BuildingAreaTotal','SqFt','sqft'),
+          lot: txt('LotSizeAcres','LotSizeSquareFeet','LotSize','lot'),
+          garage: txt('GarageSpaces','ParkingTotal','parking','garage'),
+          dom: num('DaysOnMarket','CumulativeDaysOnMarket','DOM','DaysOnElite'),
+          mlsStatus: txt('MlsStatus','Status','status'),
+          photo: parsedPhotos[0] || txt('PhotoUrl','PrimaryPhoto','photo','image','Media_MediaUrl'),
+          photos: parsedPhotos,
+          listingId: txt('ListingId','MlsId','listingId'),
+          taxes: num('TaxAnnualAmount','annualTax'),
+          hoa: num('AssociationFee','HOAFee','hoa')
+        };
+
+        // Price + address
+        if (data.price) $('property-price').textContent = money(data.price);
+        const fullAddr = [data.address, [data.city, data.state, data.zip].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
+        if (fullAddr) $('property-address').textContent = fullAddr;
+        if (data.remarks) $('property-remarks').textContent = data.remarks;
+
+        // Highlights
+        const setTile = (id, val) => { const el = $(id); if (el && val != null && val !== '') el.textContent = val; };
+        setTile('days-on-market', data.dom);
+        setTile('property-type', data.type);
+        setTile('property-year', data.year);
+        setTile('property-beds', data.beds);
+        setTile('property-baths', data.baths);
+        setTile('property-sqft', data.sqft ? Number(data.sqft).toLocaleString() : null);
+        setTile('property-lot', data.lot);
+        setTile('property-garage', data.garage);
+        if (data.price && data.sqft) setTile('property-price-sqft', money(Math.round(data.price / data.sqft)));
+
+        // MLS status (captured by elr-offer script)
+        if (data.mlsStatus) $('mlsStatus').textContent = data.mlsStatus;
+
+        // Hero photo
+        const heroEl = $('main-photo');
+        const ph = $('hero-ph');
+        const allPhotos = uniq([data.photo, ...(Array.isArray(data.photos) ? data.photos : [])].map(cleanUrlCandidate).filter(isLikelyImageUrl));
+        const galleryPhotos = allPhotos.slice(1);
+        if (heroEl && allPhotos.length) {
+          const setHeroPhoto = idx => {
+            if (!allPhotos[idx]) return;
+            heroEl.alt = `${data.address || 'Property'} photo ${idx + 1}`;
+            heroEl.onload = () => { heroEl.style.display = 'block'; if (ph) ph.style.display = 'none'; };
+            heroEl.onerror = () => {
+              const nextIdx = allPhotos.findIndex((src, i) => i > idx && src);
+              if (nextIdx > -1) {
+                setHeroPhoto(nextIdx);
+              } else if (ph) {
+                heroEl.style.display = 'none';
+                ph.style.display = 'block';
+              }
+            };
+            heroEl.src = allPhotos[idx];
+          };
+          setHeroPhoto(0);
+        }
+
+        // Photo grid
+        const grid = $('image-grid');
+        if (grid && galleryPhotos.length) {
+          grid.innerHTML = '';
+          galleryPhotos.slice(0, 4).forEach((src, i) => {
+            const im = document.createElement('img');
+            im.className = 'grid-img';
+            im.loading = 'lazy';
+            im.decoding = 'async';
+            im.alt = `${data.address || 'Property'} gallery photo ${i + 2}`;
+            im.src = src;
+            grid.appendChild(im);
           });
         }
-        return out;
-      };
-      const mediaSeedValues = Object.keys(all).filter(k => /(photo|media|image)/i.test(k)).map(k => all[k]);
-      const parsedPhotos = uniq(collectMediaUrls(mediaSeedValues).map(cleanUrlCandidate).filter(isLikelyImageUrl));
-      const num = (...keys) => {
-        for (const k of keys) {
-          let v = get(k); if (v == null || v === '') continue;
-          v = ('' + v).replace(/[, ]/g, '');
-          const n = Number(v); if (!Number.isNaN(n)) return n;
+
+        // Street view / map
+        if (data.address) {
+          const q = encodeURIComponent([data.address, data.city, data.state, data.zip].filter(Boolean).join(', '));
+          $('street-view-button').href = `https://www.google.com/maps?q=&layer=c&cbll=${q}`;
+          $('property-map').src = `https://www.google.com/maps?q=${q}&output=embed`;
+          $('map-overlay').style.display = 'none';
         }
-        return null;
-      };
-      const txt = (...keys) => {
-        for (const k of keys) {
-          const v = get(k); if (v && String(v).trim() !== '') return String(v).trim();
-        }
-        return null;
-      };
-      const $ = id => document.getElementById(id);
-      const money = v => v == null ? '—' : new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', minimumFractionDigits: 0, maximumFractionDigits: 0 }).format(v);
 
-      const data = {
-        price: num('ListPrice','price','list_price','Price'),
-        remarks: txt('PublicRemarks','remarks','description','propertyRemarks'),
-        address: txt('UnparsedAddress','address','streetAddress'),
-        city: txt('City','city'),
-        state: txt('StateOrProvince','state'),
-        zip: txt('PostalCode','zip','zipcode'),
-        type: txt('PropertySubType','PropertyType','propertyType','type') || 'Residential',
-        year: txt('YearBuilt','yearBuilt'),
-        beds: txt('BedroomsTotal','Bedrooms','beds','bedrooms'),
-        baths: txt('BathroomsTotalInteger','BathroomsFull','BathroomsTotal','baths','bathrooms'),
-        sqft: num('LivingArea','BuildingAreaTotal','SqFt','sqft'),
-        lot: txt('LotSizeAcres','LotSizeSquareFeet','LotSize','lot'),
-        garage: txt('GarageSpaces','ParkingTotal','parking','garage'),
-        dom: num('DaysOnMarket','CumulativeDaysOnMarket','DOM','DaysOnElite'),
-        mlsStatus: txt('MlsStatus','Status','status'),
-        photo: parsedPhotos[0] || txt('PhotoUrl','PrimaryPhoto','photo','image','Media_MediaUrl'),
-        photos: parsedPhotos,
-        listingId: txt('ListingId','MlsId','listingId'),
-        taxes: num('TaxAnnualAmount','annualTax'),
-        hoa: num('AssociationFee','HOAFee','hoa')
-      };
+        // Mortgage calculator (basic)
+        const calc = () => {
+          const price = data.price || 0;
+          const down = 0.20;
+          const rate = 0.07;
+          const years = 30;
+          const loan = price * (1 - down);
+          const r = rate / 12;
+          const n = years * 12;
+          const pi = loan * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
+          const taxes = (data.taxes || price * 0.022) / 12;
+          const ins = (price * 0.005) / 12;
+          const hoa = (data.hoa || 0);
+          const total = pi + taxes + ins + hoa;
+          $('monthly-payment-total').textContent = money(Math.round(total));
+          $('breakdown-principal').textContent = money(Math.round(pi));
+          $('breakdown-taxes').textContent = money(Math.round(taxes));
+          $('breakdown-insurance').textContent = money(Math.round(ins));
+          $('breakdown-hoa').textContent = money(Math.round(hoa));
+          $('display-home-price').textContent = money(price);
 
-      // Price + address
-      if (data.price) $('property-price').textContent = money(data.price);
-      const fullAddr = [data.address, [data.city, data.state, data.zip].filter(Boolean).join(', ')].filter(Boolean).join(' · ');
-      if (fullAddr) $('property-address').textContent = fullAddr;
-      if (data.remarks) $('property-remarks').textContent = data.remarks;
+          // Bar widths
+          if (total > 0) {
+            $('bar-principal').style.width = (pi / total * 100) + '%';
+            $('bar-taxes').style.width = (taxes / total * 100) + '%';
+            $('bar-insurance').style.width = (ins / total * 100) + '%';
+            $('bar-hoa').style.width = (hoa / total * 100) + '%';
+          }
+        };
+        if (data.price) calc();
 
-      // Highlights
-      const setTile = (id, val) => { const el = $(id); if (el && val != null && val !== '') el.textContent = val; };
-      setTile('days-on-market', data.dom);
-      setTile('property-type', data.type);
-      setTile('property-year', data.year);
-      setTile('property-beds', data.beds);
-      setTile('property-baths', data.baths);
-      setTile('property-sqft', data.sqft ? Number(data.sqft).toLocaleString() : null);
-      setTile('property-lot', data.lot);
-      setTile('property-garage', data.garage);
-      if (data.price && data.sqft) setTile('property-price-sqft', money(Math.round(data.price / data.sqft)));
+        // Animate sections in
+        const io = new IntersectionObserver(entries => {
+          entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+        }, { threshold: 0.1 });
+        document.querySelectorAll('.section').forEach(s => io.observe(s));
 
-      // MLS status (captured by elr-offer script)
-      if (data.mlsStatus) $('mlsStatus').textContent = data.mlsStatus;
-
-      // Hero photo
-      const heroEl = $('main-photo');
-      const ph = $('hero-ph');
-      const allPhotos = uniq([data.photo, ...(Array.isArray(data.photos) ? data.photos : [])].map(cleanUrlCandidate).filter(isLikelyImageUrl));
-      const galleryPhotos = allPhotos.slice(1);
-      if (heroEl && allPhotos.length) {
-        const setHeroPhoto = idx => {
-          if (!allPhotos[idx]) return;
-          heroEl.alt = `${data.address || 'Property'} photo ${idx + 1}`;
-          heroEl.onload = () => { heroEl.style.display = 'block'; if (ph) ph.style.display = 'none'; };
-          heroEl.onerror = () => {
-            const nextIdx = allPhotos.findIndex((src, i) => i > idx && src);
-            if (nextIdx > -1) {
-              setHeroPhoto(nextIdx);
-            } else if (ph) {
-              heroEl.style.display = 'none';
-              ph.style.display = 'block';
-            }
+        // Dallas clock
+        const dt = $('dallas-datetime');
+        if (dt) {
+          const upd = () => {
+            const d = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'short', hour: 'numeric', minute: '2-digit' });
+            dt.textContent = d + ' · Dallas';
           };
-          heroEl.src = allPhotos[idx];
-        };
-        setHeroPhoto(0);
-      }
-
-      // Photo grid
-      const grid = $('image-grid');
-      if (grid && galleryPhotos.length) {
-        grid.innerHTML = '';
-        galleryPhotos.slice(0, 4).forEach((src, i) => {
-          const im = document.createElement('img');
-          im.className = 'grid-img';
-          im.loading = 'lazy';
-          im.decoding = 'async';
-          im.alt = `${data.address || 'Property'} gallery photo ${i + 2}`;
-          im.src = src;
-          grid.appendChild(im);
-        });
-      }
-
-      // Street view / map
-      if (data.address) {
-        const q = encodeURIComponent([data.address, data.city, data.state, data.zip].filter(Boolean).join(', '));
-        $('street-view-button').href = `https://www.google.com/maps?q=&layer=c&cbll=${q}`;
-        $('property-map').src = `https://www.google.com/maps?q=${q}&output=embed`;
-        $('map-overlay').style.display = 'none';
-      }
-
-      // Mortgage calculator (basic)
-      const calc = () => {
-        const price = data.price || 0;
-        const down = 0.20;
-        const rate = 0.07;
-        const years = 30;
-        const loan = price * (1 - down);
-        const r = rate / 12;
-        const n = years * 12;
-        const pi = loan * r * Math.pow(1 + r, n) / (Math.pow(1 + r, n) - 1);
-        const taxes = (data.taxes || price * 0.022) / 12;
-        const ins = (price * 0.005) / 12;
-        const hoa = (data.hoa || 0);
-        const total = pi + taxes + ins + hoa;
-        $('monthly-payment-total').textContent = money(Math.round(total));
-        $('breakdown-principal').textContent = money(Math.round(pi));
-        $('breakdown-taxes').textContent = money(Math.round(taxes));
-        $('breakdown-insurance').textContent = money(Math.round(ins));
-        $('breakdown-hoa').textContent = money(Math.round(hoa));
-        $('display-home-price').textContent = money(price);
-
-        // Bar widths
-        if (total > 0) {
-          $('bar-principal').style.width = (pi / total * 100) + '%';
-          $('bar-taxes').style.width = (taxes / total * 100) + '%';
-          $('bar-insurance').style.width = (ins / total * 100) + '%';
-          $('bar-hoa').style.width = (hoa / total * 100) + '%';
+          upd(); setInterval(upd, 30000);
         }
-      };
-      if (data.price) calc();
 
-      // Animate sections in
-      const io = new IntersectionObserver(entries => {
-        entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
-      }, { threshold: 0.1 });
-      document.querySelectorAll('.section').forEach(s => io.observe(s));
-
-      // Dallas clock
-      const dt = $('dallas-datetime');
-      if (dt) {
-        const upd = () => {
-          const d = new Date().toLocaleString('en-US', { timeZone: 'America/Chicago', weekday: 'short', hour: 'numeric', minute: '2-digit' });
-          dt.textContent = d + ' · Dallas';
-        };
-        upd(); setInterval(upd, 30000);
+        // OG tags
+        const canon = document.querySelector('link[rel="canonical"]')?.href || location.href;
+        const title = [data.address, money(data.price)].filter(Boolean).join(' · ') || 'Midway Hollow Insider — Listing';
+        const heroSrc = heroEl?.src || '';
+        const setProp = (p, v) => { let m = document.querySelector(`meta[property="${p}"]`); if (!m) { m = document.createElement('meta'); m.setAttribute('property', p); document.head.appendChild(m); } if (v) m.setAttribute('content', v); };
+        setProp('og:title', title); setProp('og:url', canon); setProp('og:image', heroSrc);
+      } catch (error) {
+        console.error('Listing hydration failed:', error);
+        document.querySelectorAll('.section').forEach(section => section.classList.add('visible'));
       }
-
-      // OG tags
-      const canon = document.querySelector('link[rel="canonical"]')?.href || location.href;
-      const title = [data.address, money(data.price)].filter(Boolean).join(' · ') || 'Midway Hollow Insider — Listing';
-      const heroSrc = heroEl?.src || '';
-      const setProp = (p, v) => { let m = document.querySelector(`meta[property="${p}"]`); if (!m) { m = document.createElement('meta'); m.setAttribute('property', p); document.head.appendChild(m); } if (v) m.setAttribute('content', v); };
-      setProp('og:title', title); setProp('og:url', canon); setProp('og:image', heroSrc);
     });
   </script>
 
