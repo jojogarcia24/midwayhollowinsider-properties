@@ -2,3 +2,4 @@
 /schedule-tour   /schedule-tour.html   200
 /offer           /make-offer.html      200
 /tour            /schedule-tour.html   200
+/api/listing     /.netlify/functions/listing   200

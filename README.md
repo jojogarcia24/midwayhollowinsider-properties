@@ -90,6 +90,24 @@ Open `midwayhollowinsider.com`, use the search. You'll land on the property
 detail site with listing data in the URL, the page hydrates, and the
 Make Offer / Schedule Tour buttons already carry the listing context.
 
+### 5. Configure Netlify environment variables for listing API proxy
+
+This project includes a Netlify Function at `netlify/functions/listing.js` that
+proxies listing lookups to SimplyRETS so credentials are never exposed in the
+browser.
+
+In Netlify (for your property-detail site), set these environment variables:
+
+- `SIMPLYRETS_KEY`
+- `SIMPLYRETS_SECRET`
+
+Fallback names are also supported by the function:
+
+- `SIMPLYRETS_USERNAME`
+- `SIMPLYRETS_PASSWORD`
+
+After setting variables, trigger a redeploy so the function can authenticate.
+
 ## How the data flows
 
 ```
