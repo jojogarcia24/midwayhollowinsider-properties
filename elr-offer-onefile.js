@@ -36,6 +36,17 @@
   };
   const num = (v) => Number(String(v || '').replace(/[^0-9.]/g, ''));
   const money = (n) => (isFinite(n) ? new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', maximumFractionDigits: 0 }).format(Number(n)) : '—');
+  const postLead = (type, payload) => {
+    if (!payload || typeof payload !== 'object') return;
+    const body = { ...payload, leadType: type, source: 'midwayhollowinsider-properties' };
+    // Fire-and-forget lead forwarding; do not block form navigation.
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(body),
+      keepalive: true
+    }).catch(() => {});
+  };
 
   /* ---------- READ LISTING FROM CURRENT PAGE ---------- */
   function readListingFromDom() {
@@ -154,6 +165,7 @@
           submittedAt: new Date().toISOString()
         });
         sessionStorage.setItem('elr-offer-submission', JSON.stringify(data));
+        postLead('offer', data);
         if (ref) sessionStorage.setItem('elr-thanks-ref', ref);
 
         // Ensure ref survives to thanks page
@@ -192,6 +204,7 @@
           submittedAt: new Date().toISOString()
         };
         sessionStorage.setItem('elr-tour-submission', JSON.stringify(data));
+        postLead('tour', data);
         if (ref) sessionStorage.setItem('elr-tour-ref', ref);
 
         const act = new URL(FORM.getAttribute('action') || '/thanks.html', location.href);

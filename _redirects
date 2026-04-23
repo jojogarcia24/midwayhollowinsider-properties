@@ -3,3 +3,4 @@
 /offer           /make-offer.html      200
 /tour            /schedule-tour.html   200
 /api/listing     /.netlify/functions/listing   200
+/api/lead        /.netlify/functions/lead      200
