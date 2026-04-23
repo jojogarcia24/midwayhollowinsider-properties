@@ -1,8 +1,15 @@
 exports.handler = async (event) => {
+  const ttlRaw = Number(process.env.LISTING_CACHE_TTL_SECONDS);
+  const ttl = Number.isFinite(ttlRaw) && ttlRaw > 0 ? Math.floor(ttlRaw) : 90;
+  const cacheHeaders = {
+    'cache-control': `public, max-age=0, s-maxage=${ttl}, stale-while-revalidate=${ttl}`,
+    'content-type': 'application/json'
+  };
+
   if (event.httpMethod && event.httpMethod !== 'GET') {
     return {
       statusCode: 405,
-      headers: { 'content-type': 'application/json' },
+      headers: cacheHeaders,
       body: JSON.stringify({ error: 'Method not allowed' })
     };
   }
@@ -14,7 +21,7 @@ exports.handler = async (event) => {
   if (!listingId) {
     return {
       statusCode: 400,
-      headers: { 'content-type': 'application/json' },
+      headers: cacheHeaders,
       body: JSON.stringify({ error: 'Missing listingId' })
     };
   }
@@ -24,7 +31,7 @@ exports.handler = async (event) => {
   if (!key || !secret) {
     return {
       statusCode: 500,
-      headers: { 'content-type': 'application/json' },
+      headers: cacheHeaders,
       body: JSON.stringify({ error: 'Server not configured with SimplyRETS credentials' })
     };
   }
@@ -60,7 +67,7 @@ exports.handler = async (event) => {
       if (exact) {
         return {
           statusCode: 200,
-          headers: { 'content-type': 'application/json' },
+          headers: cacheHeaders,
           body: JSON.stringify(exact)
         };
       }
@@ -71,14 +78,14 @@ exports.handler = async (event) => {
   if (!fallback) {
     return {
       statusCode: 404,
-      headers: { 'content-type': 'application/json' },
+      headers: cacheHeaders,
       body: JSON.stringify({ error: 'Listing not found' })
     };
   }
 
   return {
     statusCode: 200,
-    headers: { 'content-type': 'application/json' },
+    headers: cacheHeaders,
     body: JSON.stringify(fallback)
   };
 };
