@@ -213,6 +213,13 @@
       gap: 0.75rem;
       margin-bottom: 2rem;
     }
+    .cta-buttons .cta-action-wrap {
+      position: relative;
+      flex: 1 1 auto;
+    }
+    .cta-buttons .cta-action-wrap > a {
+      width: 100%;
+    }
     .cta-buttons a {
       flex: 1 1 auto;
       padding: 0.95rem 1.75rem;
@@ -232,6 +239,47 @@
     .cta-buttons a:hover { background: var(--ink); color: var(--paper); }
     .cta-buttons a.primary { background: var(--ink); color: var(--paper); }
     .cta-buttons a.primary:hover { background: var(--paper); color: var(--ink); }
+    .share-menu {
+      position: absolute;
+      top: calc(100% + 0.45rem);
+      right: 0;
+      min-width: 220px;
+      background: var(--paper);
+      border: 1px solid var(--line);
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.14);
+      z-index: 20;
+      display: none;
+    }
+    .share-menu.open { display: block; }
+    .share-menu button {
+      width: 100%;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      background: transparent;
+      text-align: left;
+      padding: 0.75rem 0.9rem;
+      font-size: 0.75rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      color: var(--ink);
+      cursor: pointer;
+    }
+    .share-menu button:last-child { border-bottom: 0; }
+    .share-menu button:hover { background: var(--ink); color: var(--paper); }
+    .share-feedback {
+      position: absolute;
+      top: calc(100% + 0.45rem);
+      right: 0;
+      padding: 0.55rem 0.85rem;
+      background: var(--ink);
+      color: var(--paper);
+      font-size: 0.68rem;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      z-index: 21;
+      display: none;
+    }
+    .share-feedback.visible { display: inline-block; }
     .icon { width: 14px; height: 14px; fill: currentColor; }
 
     /* ===== HIGHLIGHTS (stat tiles) ===== */
@@ -258,6 +306,10 @@
       font-family: 'Playfair Display', serif;
       font-weight: 600;
       font-size: 1.25rem;
+      line-height: 1.2;
+      white-space: normal;
+      overflow-wrap: anywhere;
+      word-break: break-word;
     }
     .highlight small {
       display: block;
@@ -528,11 +580,68 @@
     }
     .legal-section p { font-size: 0.85rem; color: #444; margin: 0 0 0.75rem; }
     .legal-section a { display: inline; color: var(--ink); text-decoration: underline; }
+    .contact-section {
+      margin: 2.5rem 0 3rem;
+      border-top: 1px solid var(--line);
+      border-bottom: 1px solid var(--line);
+      padding: 2.2rem 0;
+    }
+    .contact-section-header {
+      margin-bottom: 1.25rem;
+    }
+    .contact-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 1rem;
+    }
+    .contact-card {
+      border: 1px solid var(--line);
+      background: var(--paper);
+      display: grid;
+      grid-template-columns: 84px 1fr;
+      gap: 0.9rem;
+      align-items: center;
+      padding: 0.85rem;
+    }
+    .contact-card img {
+      width: 84px;
+      height: 84px;
+      object-fit: cover;
+      border: 1px solid var(--line);
+      background: var(--cream);
+    }
+    .contact-card-name {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.15rem;
+      margin-bottom: 0.15rem;
+    }
+    .contact-card-title {
+      font-size: 0.74rem;
+      text-transform: uppercase;
+      letter-spacing: 0.13em;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+    }
+    .contact-card a {
+      display: block;
+      font-size: 0.83rem;
+      color: var(--ink);
+      text-decoration: underline;
+      margin-bottom: 0.15rem;
+      word-break: break-word;
+    }
 
     /* Responsive overrides */
     @media (max-width: 768px) {
       .container { padding: 1.5rem 1rem; }
       .cta-buttons a { flex: 1 1 calc(50% - 0.75rem); font-size: 0.72rem; padding: 0.85rem 1rem; }
+      .cta-buttons .cta-action-wrap { flex: 1 1 calc(50% - 0.75rem); }
+      .share-menu {
+        right: auto;
+        left: 0;
+        min-width: 100%;
+      }
+      .contact-grid { grid-template-columns: 1fr; }
       .around-home-section { padding: 1.5rem; }
       .mortgage-calc { padding: 2rem 1.5rem; }
     }
@@ -590,14 +699,21 @@
         <svg class="icon" viewBox="0 0 24 24"><path d="M12 2C8.48 2 5.29 4.67 4.33 8H2v2h2v8h16V10h2V8h-2c-1.14-3.33-4.15-6-7.66-6z"/></svg>
         Make an Offer
       </a>
-      <a href="#">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M20 6h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2z"/></svg>
-        Save
-      </a>
-      <a href="#" id="share-button">
-        <svg class="icon" viewBox="0 0 24 24"><path d="M18 16.08a2.92 2.92 0 0 1-2.14-.86L7.4 12a2.9 2.9 0 0 1 0-4l8.46-3.22a2.9 2.9 0 0 1 2.14-.86c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg>
-        Share
-      </a>
+      <div class="cta-action-wrap">
+        <a href="#" id="share-button" aria-expanded="false" aria-controls="share-menu">
+          <svg class="icon" viewBox="0 0 24 24"><path d="M18 16.08a2.92 2.92 0 0 1-2.14-.86L7.4 12a2.9 2.9 0 0 1 0-4l8.46-3.22a2.9 2.9 0 0 1 2.14-.86c1.66 0 3 1.34 3 3s-1.34 3-3 3z"/></svg>
+          Share
+        </a>
+        <div id="share-menu" class="share-menu" role="menu" aria-label="Share listing">
+          <button type="button" data-share-action="copy" role="menuitem">Copy Link</button>
+          <button type="button" data-share-action="native" role="menuitem">Share…</button>
+          <button type="button" data-share-action="email" role="menuitem">Email</button>
+          <button type="button" data-share-action="sms" role="menuitem">Text Message</button>
+          <button type="button" data-share-action="facebook" role="menuitem">Facebook</button>
+          <button type="button" data-share-action="x" role="menuitem">X</button>
+        </div>
+        <span id="share-feedback" class="share-feedback" aria-live="polite"></span>
+      </div>
     </div>
 
     <!-- ===== HIGHLIGHTS ===== -->
@@ -723,6 +839,34 @@
       <div class="mortgage-calc-prequalified">
         <div class="text">Takes ~5 minutes &amp; won't affect your credit</div>
         <a href="#prequalify">Get Pre-Qualified</a>
+      </div>
+    </section>
+
+    <!-- ===== CONTACT ===== -->
+    <section class="section contact-section" id="contact-section">
+      <div class="contact-section-header">
+        <div class="section-eyebrow">Contact</div>
+        <h3>Talk with Elite Living Realty</h3>
+      </div>
+      <div class="contact-grid">
+        <article class="contact-card">
+          <img src="https://cdn.prod.website-files.com/688041225c9ac62ab169290b/68a8294a5a8658143e41459c_theone%20copy.jpg" alt="Joseph Garcia">
+          <div>
+            <div class="contact-card-name">Joseph Garcia</div>
+            <div class="contact-card-title">Broker · Elite Living Realty</div>
+            <a href="tel:+12145060634">(214) 506-0634</a>
+            <a href="mailto:jojo@elitelivingrealty.com">jojo@elitelivingrealty.com</a>
+          </div>
+        </article>
+        <article class="contact-card">
+          <img src="https://cdn.prod.website-files.com/688041225c9ac62ab169290b/68d9e258a5e493b2614d0637_Cliff%20copy.jpg" alt="Cliff Graham">
+          <div>
+            <div class="contact-card-name">Cliff Graham</div>
+            <div class="contact-card-title">Realtor · Elite Living Realty</div>
+            <a href="tel:+12145060634">(214) 506-0634</a>
+            <a href="mailto:cliff@dfweliteliving.com">cliff@dfweliteliving.com</a>
+          </div>
+        </article>
       </div>
     </section>
 
@@ -1301,6 +1445,78 @@
             dt.textContent = d + ' · Dallas';
           };
           upd(); setInterval(upd, 30000);
+        }
+
+        // Share menu
+        const shareButton = $('share-button');
+        const shareMenu = $('share-menu');
+        const shareFeedback = $('share-feedback');
+        if (shareButton && shareMenu) {
+          const hideShareMenu = () => {
+            shareMenu.classList.remove('open');
+            shareButton.setAttribute('aria-expanded', 'false');
+          };
+          const showFeedback = message => {
+            if (!shareFeedback) return;
+            shareFeedback.textContent = message;
+            shareFeedback.classList.add('visible');
+            setTimeout(() => shareFeedback.classList.remove('visible'), 1800);
+          };
+          const shareData = {
+            title: [data.address, money(data.price)].filter(Boolean).join(' · ') || 'Midway Hollow Insider Listing',
+            text: [data.address, data.city, data.state].filter(Boolean).join(', ') || 'Check out this listing',
+            url: location.href
+          };
+          shareButton.addEventListener('click', async e => {
+            e.preventDefault();
+            const isOpen = shareMenu.classList.toggle('open');
+            shareButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            if (isOpen && navigator.share) {
+              try {
+                await navigator.share(shareData);
+                hideShareMenu();
+              } catch {}
+            }
+          });
+          shareMenu.addEventListener('click', async e => {
+            const action = e.target?.dataset?.shareAction;
+            if (!action) return;
+            e.preventDefault();
+            if (action === 'copy') {
+              try {
+                await navigator.clipboard.writeText(shareData.url);
+                showFeedback('Link copied');
+              } catch {
+                showFeedback('Copy unavailable');
+              }
+              hideShareMenu();
+              return;
+            }
+            if (action === 'native') {
+              if (navigator.share) {
+                try { await navigator.share(shareData); } catch {}
+              } else {
+                showFeedback('Sharing unavailable');
+              }
+              hideShareMenu();
+              return;
+            }
+            const encodedUrl = encodeURIComponent(shareData.url);
+            const encodedTitle = encodeURIComponent(shareData.title);
+            const encodedText = encodeURIComponent(`${shareData.title} — ${shareData.url}`);
+            const links = {
+              email: `mailto:?subject=${encodedTitle}&body=${encodeURIComponent(`${shareData.text}\n\n${shareData.url}`)}`,
+              sms: `sms:?&body=${encodedText}`,
+              facebook: `https://www.facebook.com/sharer/sharer.php?u=${encodedUrl}`,
+              x: `https://x.com/intent/tweet?text=${encodedText}`
+            };
+            const href = links[action];
+            if (href) window.open(href, '_blank', 'noopener');
+            hideShareMenu();
+          });
+          document.addEventListener('click', e => {
+            if (!shareMenu.contains(e.target) && !shareButton.contains(e.target)) hideShareMenu();
+          });
         }
 
         // OG tags
