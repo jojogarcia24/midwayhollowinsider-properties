@@ -153,6 +153,8 @@
         const phone = val('#phone, [name="phone"]');
         const touredBefore = val('#touredBefore, [name="touredBefore"]');
         const notes = val('#notes, [name="notes"]');
+        const emailConsent = !!$('#emailConsent')?.checked;
+        const smsConsent = !!$('#smsConsent')?.checked;
 
         const data = Object.assign({}, base, {
           hasOfferAmount: isFinite(offerAmount) && offerAmount > 0,
@@ -161,6 +163,7 @@
           downPercent: isFinite(downPercent) ? downPercent : null,
           downAmount: isFinite(downAmount) ? downAmount : null,
           firstName, lastName, email, phone,
+          emailConsent, smsConsent,
           touredBefore, notes,
           submittedAt: new Date().toISOString()
         });
@@ -198,6 +201,8 @@
           lastName: val('#lastName, [name="lastName"]'),
           email: val('#email, [name="email"]'),
           phone: val('#phone, [name="phone"]'),
+          emailConsent: !!$('#emailConsent')?.checked,
+          smsConsent: !!$('#smsConsent')?.checked,
           workingWithAgent: val('#workingWithAgent, [name="workingWithAgent"]'),
           notes: val('#notes, [name="notes"]'),
           listing,
