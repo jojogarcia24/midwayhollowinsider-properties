@@ -99,6 +99,28 @@
     }
     .field-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
     @media (max-width: 600px) { .field-row { grid-template-columns: 1fr; } }
+    .consent-group {
+      border: 1px solid var(--line);
+      background: var(--cream);
+      padding: 1rem 1rem 0.35rem;
+      margin: 0 0 1.25rem;
+    }
+    .consent-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      margin: 0 0 0.75rem;
+      font-size: 0.82rem;
+      color: var(--ink);
+      line-height: 1.45;
+    }
+    .consent-option input {
+      width: 16px;
+      height: 16px;
+      margin-top: 0.15rem;
+      accent-color: var(--ink);
+      flex: 0 0 16px;
+    }
 
     /* Slider */
     .range-row { display: flex; justify-content: space-between; margin-bottom: 0.5rem; font-size: 0.85rem; }
@@ -275,6 +297,17 @@
               <label for="notes">Notes (optional)</label>
               <textarea id="notes" name="notes" rows="4" placeholder="Seller concessions, closing timing, inspection preferences, etc."></textarea>
             </div>
+          </div>
+
+          <div class="consent-group" aria-label="Communication consents">
+            <label class="consent-option" for="emailConsent">
+              <input id="emailConsent" name="emailConsent" type="checkbox" required />
+              <span>I agree to receive email communication related to this offer.</span>
+            </label>
+            <label class="consent-option" for="smsConsent">
+              <input id="smsConsent" name="smsConsent" type="checkbox" required />
+              <span>I agree to receive SMS/text communication related to this offer.</span>
+            </label>
           </div>
 
           <button type="submit" class="btn-primary">Submit Offer</button>

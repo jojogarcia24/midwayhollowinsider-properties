@@ -48,6 +48,28 @@
     }
     .field-row { display:grid; grid-template-columns:1fr 1fr; gap:1rem; }
     @media (max-width:600px) { .field-row { grid-template-columns:1fr; } }
+    .consent-block {
+      border: 1px solid var(--line);
+      background: var(--cream);
+      padding: 0.9rem 1rem;
+      margin: -0.5rem 0 1rem;
+    }
+    .consent-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.6rem;
+      font-size: 0.85rem;
+      color: #222;
+      margin: 0.5rem 0;
+      letter-spacing: 0.01em;
+    }
+    .consent-item input[type="checkbox"] {
+      margin-top: 0.2rem;
+      width: 16px;
+      height: 16px;
+      accent-color: var(--ink);
+      flex: 0 0 auto;
+    }
 
     .tour-type {
       display:grid; grid-template-columns:repeat(3,1fr); gap:0.75rem;
@@ -168,6 +190,17 @@
             <label for="notes">Notes (optional)</label>
             <textarea id="notes" name="notes" rows="3" placeholder="Anything else we should know?"></textarea>
           </div>
+        </div>
+
+        <div class="consent-block">
+          <label class="consent-item" for="emailConsent">
+            <input id="emailConsent" name="emailConsent" type="checkbox" required />
+            <span>I consent to receive email updates from Elite Living Realty regarding this inquiry.</span>
+          </label>
+          <label class="consent-item" for="smsConsent">
+            <input id="smsConsent" name="smsConsent" type="checkbox" required />
+            <span>I consent to receive SMS/text updates from Elite Living Realty regarding this inquiry.</span>
+          </label>
         </div>
 
         <button type="submit" class="btn-primary">Request Tour</button>
